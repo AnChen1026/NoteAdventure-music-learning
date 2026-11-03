@@ -2,7 +2,7 @@
 tests/conftest.py｜測試共用設定
 
 - 讀取專案根目錄 config.ini 的連線資訊，但一律改用「<資料庫名稱>_test」測試資料庫
-- 每次測試開始時：DROP → CREATE 測試資料庫，再逐句執行 sql/music_rpg_schema_v2.sql
+- 每次測試開始時：DROP → CREATE 測試資料庫，再逐句執行 backend/sql/music_rpg_schema_v2.sql
 - 上傳的音檔寫到暫存資料夾，不會留在專案裡
 正式資料庫不會被讀寫。
 """
@@ -17,8 +17,8 @@ import pymysql
 import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA_PATH = ROOT / 'sql' / 'music_rpg_schema_v2.sql'
-sys.path.insert(0, str(ROOT))
+SCHEMA_PATH = ROOT / 'backend' / 'sql' / 'music_rpg_schema_v2.sql'
+sys.path.insert(0, str(ROOT / 'backend'))
 
 
 # ======================================================
@@ -124,17 +124,17 @@ def schema_failures():
 
 @pytest.fixture(scope='session')
 def app(schema_failures, tmp_path_factory):
-    # 上傳音檔用相對路徑 uploads/audio，切到暫存資料夾避免寫進專案
-    work_dir = tmp_path_factory.mktemp('work')
-    old_cwd = os.getcwd()
-    os.chdir(work_dir)
+    # 上傳音檔改存到暫存資料夾，避免寫進專案的 uploads/
+    from services import practice_service
+    old_audio_dir = practice_service.AUDIO_DIR
+    practice_service.AUDIO_DIR = str(tmp_path_factory.mktemp('audio'))
 
     from app import create_app
     flask_app = create_app()
     flask_app.config['TESTING'] = True
     yield flask_app
 
-    os.chdir(old_cwd)
+    practice_service.AUDIO_DIR = old_audio_dir
 
 
 @pytest.fixture(scope='session')

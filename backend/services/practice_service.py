@@ -97,8 +97,12 @@ def get_teacher_practice_upload(teacher, upload_id):
 def resolve_audio_path(audio_url):
     if not audio_url:
         return None
+    # 資料庫存 uploads/audio/檔名；實際檔案在 AUDIO_DIR
+    prefix = AUDIO_FOLDER + '/'
+    if not audio_url.startswith(prefix):
+        return None
     abs_folder = os.path.abspath(AUDIO_DIR)
-    abs_path = os.path.abspath(project_path(audio_url))
+    abs_path = os.path.abspath(os.path.join(AUDIO_DIR, audio_url[len(prefix):]))
     try:
         common = os.path.commonpath([abs_folder, abs_path])
     except ValueError:

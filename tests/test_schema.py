@@ -1,5 +1,5 @@
 """
-建表腳本：在全新的空資料庫上，sql/music_rpg_schema_v2.sql 每一句都要能執行成功。
+建表腳本：在全新的空資料庫上，backend/sql/music_rpg_schema_v2.sql 每一句都要能執行成功。
 """
 
 from conftest import query_one
