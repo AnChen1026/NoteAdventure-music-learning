@@ -261,7 +261,7 @@ TEACHER_ADJUST
 
 ## 15. 維護規則
 
-1. 真實 SQL 以 `sql/music_rpg_schema_v2.sql` 為準。
+1. 真實 SQL 以 `backend/sql/music_rpg_schema_v2.sql` 為準。
 2. 修改資料表時同步更新本文件。
 3. 不得自行更改欄位名稱。
 4. 不得自行捏造 ORM 欄位。

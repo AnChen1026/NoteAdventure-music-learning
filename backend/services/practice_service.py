@@ -2,22 +2,24 @@ import os # 檢查檔案是否存在
 import shutil # 複製檔案
 from datetime import datetime
 from db import SqlUtils
+from paths import project_path
 
 db = SqlUtils()
 
-AUDIO_FOLDER = 'uploads/audio' # 音檔存放路徑
+AUDIO_FOLDER = 'uploads/audio' # 音檔存放路徑（資料庫存這個相對路徑）
+AUDIO_DIR = project_path(AUDIO_FOLDER) # 實際存放位置：專案根目錄/uploads/audio
 
 
 # ======================================================
 # 儲存音檔並回傳存放路徑
 # ======================================================
 def save_audio_file(student, source_path):
-    os.makedirs(AUDIO_FOLDER, exist_ok=True) # 建立音檔存放路徑
+    os.makedirs(AUDIO_DIR, exist_ok=True) # 建立音檔存放路徑
     file_ext = os.path.splitext(source_path)[1] # 檔案副檔名
     file_time = datetime.now().strftime('%Y%m%d_%H%M%S') # 檔案時間
     file_name = f"{student['student_id']}_{file_time}{file_ext}" # 檔案名稱
     audio_url = f'{AUDIO_FOLDER}/{file_name}'
-    shutil.copy(source_path, audio_url) # 複製檔案
+    shutil.copy(source_path, os.path.join(AUDIO_DIR, file_name)) # 複製檔案
     return audio_url # 回傳檔案路徑
 
 
@@ -95,8 +97,8 @@ def get_teacher_practice_upload(teacher, upload_id):
 def resolve_audio_path(audio_url):
     if not audio_url:
         return None
-    abs_folder = os.path.abspath(AUDIO_FOLDER)
-    abs_path = os.path.abspath(audio_url)
+    abs_folder = os.path.abspath(AUDIO_DIR)
+    abs_path = os.path.abspath(project_path(audio_url))
     try:
         common = os.path.commonpath([abs_folder, abs_path])
     except ValueError:

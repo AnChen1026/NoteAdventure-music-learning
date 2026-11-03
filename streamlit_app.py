@@ -81,7 +81,7 @@ def call_api(method, path, **kwargs):
     try:
         response = get_api_session().request(method, url, timeout=30, **kwargs)
     except requests.exceptions.ConnectionError:
-        return False, '無法連接 Flask API，請先啟動：flask --app app run --port 5000', None
+        return False, '無法連接 Flask API，請先啟動：flask --app backend/app.py run --port 5000', None
     except requests.exceptions.RequestException as error:
         return False, f'API 連線失敗：{error}', None
 
@@ -90,7 +90,7 @@ def call_api(method, path, **kwargs):
     except ValueError:
         # 常見於 Flask 還是舊版時回傳 HTML 404
         if response.status_code == 404:
-            return False, 'API 不存在（404）。請重啟 Flask：flask --app app run --port 5000', 404
+            return False, 'API 不存在（404）。請重啟 Flask：flask --app backend/app.py run --port 5000', 404
         return False, response.text[:200], response.status_code
 
     if response.ok:
@@ -106,7 +106,7 @@ def call_api_binary(method, path, **kwargs):
     try:
         response = get_api_session().request(method, url, timeout=60, **kwargs)
     except requests.exceptions.ConnectionError:
-        return False, '無法連接 Flask API，請先啟動：flask --app app run --port 5000', None
+        return False, '無法連接 Flask API，請先啟動：flask --app backend/app.py run --port 5000', None
     except requests.exceptions.RequestException as error:
         return False, f'API 連線失敗：{error}', None
 

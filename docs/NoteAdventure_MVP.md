@@ -28,7 +28,7 @@
     - **後端**：Python、Flask
         - Flask 提供 RESTful API，並同時提供學生 HTML 頁面。
         - 負責登入驗證、學生管理、任務指派、錄音資料處理與獎勵計算。
-        - 商業邏輯集中在 `services/`；路由在 `api/`。
+        - 後端程式集中在 `backend/`：商業邏輯在 `backend/services/`；路由在 `backend/api/`。
     - **資料庫**：MySQL
         - 儲存老師、學生、任務、虛擬商品、錄音紀錄、XP、金幣與寵物狀態。
     - **資料庫連線**：PyMySQL
@@ -38,7 +38,7 @@
         - 資料庫不得保存明文密碼。
     - **套件管理**：
         - 使用 Python `venv` 建立虛擬環境。
-        - 使用 `requirements.txt` 記錄專案所需套件。
+        - 使用 `backend/requirements.txt` 記錄專案所需套件（根目錄 `requirements.txt` 只引用它）。
     - **版本控制**：Git、GitHub
         - 每完成一個小功能建立一次 commit。
         - AI Agent 修改程式前，應先確認目前版本已 commit。

@@ -1,7 +1,7 @@
 """
 api/dashboard.py｜首頁摘要數字
 
-- 老師 Streamlit「首頁」→ GET /api/dashboard → get_teacher_dashboard
+- 老師「首頁」→ GET /api/dashboard → get_teacher_dashboard
 """
 
 from flask import Blueprint, jsonify

@@ -1,1 +1,1 @@
-web: gunicorn -w 2 -b 0.0.0.0:${PORT:-5000} "app:create_app()"
+web: gunicorn --chdir backend -w 2 -b 0.0.0.0:${PORT:-5000} "app:create_app()"

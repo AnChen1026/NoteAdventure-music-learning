@@ -3,7 +3,7 @@ NoteAdventure｜Flask 進入點（Application Factory）
 
 報告時可以這樣講整條線：
 
-1. 啟動：flask --app app run  →  讀取下方的 app = create_app()
+1. 啟動：flask --app backend/app run  →  讀取下方的 app = create_app()
 2. 老師網頁（Streamlit）用 HTTP 打 /api/...
 3. 學生網頁（HTML／JS）也用 fetch 打同一套 /api/...
 4. api/*.py 負責收請求、檢查登入（session）、再呼叫 services/
@@ -19,6 +19,8 @@ import os
 
 from flask import Flask, render_template, send_from_directory
 
+from paths import project_path
+
 # 各功能的「路由藍圖」：一個檔案管一類 API
 from api.health import health_bp
 from api.auth import auth_bp
@@ -33,7 +35,12 @@ from api.class_board import class_bp
 
 def create_app():
     """建立並設定 Flask 應用程式（工廠函式，方便測試／部署重複建立）。"""
-    app = Flask(__name__)
+    # 後端程式在 backend/；學生頁面與素材仍放在專案根目錄
+    app = Flask(
+        __name__,
+        template_folder=project_path('templates'),
+        static_folder=project_path('static'),
+    )
 
     # ---------- session（登入狀態存在伺服器端 cookie）----------
     # 正式環境請用環境變數設密鑰，不要用預設字串上線
@@ -113,11 +120,11 @@ def create_app():
     # 學生頁面用的圖／音：HTML 寫 /assets/material/home.png → 對應 material/home.png
     @app.get('/assets/material/<path:filename>')
     def material_asset(filename):
-        return send_from_directory('material', filename)
+        return send_from_directory(project_path('material'), filename)
 
     return app
 
 
-# 本機：flask --app app run
-# 雲端：gunicorn ... "app:create_app()" 也會用到這個模組
+# 本機（專案根目錄）：flask --app backend/app run --port 5000
+# 雲端：gunicorn --chdir backend ... "app:create_app()" 也會用到這個模組
 app = create_app()

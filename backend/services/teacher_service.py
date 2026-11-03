@@ -44,3 +44,47 @@ def login_teacher(email, password):
     except Exception as e:
         print("老師登入失敗：", e)
         return None
+
+
+# ================================================
+# 檢查電子信箱是否已註冊
+# ================================================
+def teacher_email_exists(email):
+    sql = """
+    SELECT teacher_id
+    FROM teacher
+    WHERE email = %s;
+    """
+    return db.query_one(sql, (email,)) is not None
+
+
+# ================================================
+# 老師修改密碼（回傳結果訊息）
+# ================================================
+def change_teacher_password(teacher_id, old_password, new_password, confirm_password):
+    row = db.query_one(
+        """
+        SELECT password_hash
+        FROM teacher
+        WHERE teacher_id = %s;
+        """,
+        (teacher_id,)
+    )
+    if not row or not check_password(old_password, row['password_hash']):
+        return '舊密碼錯誤'
+    if new_password != confirm_password:
+        return '兩次新密碼不一致'
+    if new_password == old_password:
+        return '新密碼不可與舊密碼相同'
+
+    rowcount = db.execute(
+        """
+        UPDATE teacher
+        SET password_hash = %s
+        WHERE teacher_id = %s;
+        """,
+        (hash_password(new_password), teacher_id)
+    )
+    if rowcount > 0:
+        return '密碼修改成功'
+    return '密碼修改失敗'

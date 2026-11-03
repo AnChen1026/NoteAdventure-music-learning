@@ -3,13 +3,13 @@ api/practice.py｜練習錄音上傳與老師聆聽
 
 這是 MVP 最核心的「練習 → 任務進度 → 獎勵」串接點。
 
-學生 HTML（student_practice.js）
+學生琴房頁
   POST /api/students/<id>/practice-uploads
     → 存音檔（practice_service）
     → 更新任務進度（quest_service.update_quest_progress）
     → 完成則發獎（reward_service.give_quest_rewards）
 
-老師 Streamlit「上傳紀錄」
+老師「上傳紀錄」
   GET /api/practice-uploads
   GET /api/practice-uploads/<id>/audio  （聽音檔）
 """
@@ -152,7 +152,7 @@ def api_get_practice_upload_audio(upload_id):
     if audio_path is None:
         return jsonify({'message': '音檔不存在或路徑無效'}), 404
 
-    # 依副檔名給瀏覽器／Streamlit 正確的 MIME
+    # 依副檔名給瀏覽器正確的 MIME
     ext = os.path.splitext(audio_path)[1].lower()
     mime_map = {
         '.wav': 'audio/wav',

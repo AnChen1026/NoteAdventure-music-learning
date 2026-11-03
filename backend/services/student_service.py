@@ -94,3 +94,49 @@ def login_student(username, password):
     except Exception as e:
         print("登入失敗：", e)
         return None
+
+
+# ================================================
+# 學生修改密碼（回傳結果訊息；成功後標記已改過初始密碼）
+# ================================================
+def change_student_password(student_id, old_password, new_password, confirm_password):
+    row = db.query_one(
+        """
+        SELECT password_hash
+        FROM student
+        WHERE student_id = %s;
+        """,
+        (student_id,)
+    )
+    if not row or not check_password(old_password, row['password_hash']):
+        return '舊密碼錯誤'
+    if new_password != confirm_password:
+        return '兩次新密碼不一致'
+    if new_password == old_password:
+        return '新密碼不可與舊密碼相同'
+
+    rowcount = db.execute(
+        """
+        UPDATE student
+        SET password_hash = %s,
+            password_changed = TRUE
+        WHERE student_id = %s;
+        """,
+        (hash_password(new_password), student_id)
+    )
+    if rowcount > 0:
+        return '密碼修改成功'
+    return '密碼修改失敗'
+
+
+# ================================================
+# 確認學生帳號屬於這位老師
+# ================================================
+def teacher_has_student(teacher, username):
+    sql = """
+    SELECT student_id
+    FROM student
+    WHERE username = %s
+    AND teacher_id = %s;
+    """
+    return db.query_one(sql, (username, teacher['teacher_id'])) is not None

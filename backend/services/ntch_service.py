@@ -5,6 +5,8 @@ from typing import Any
 
 import requests
 
+from paths import project_path
+
 # ========= 兩廳院 API 與快取設定 ===========
 
 GRAPHQL_URL = "https://npac-ntch.org/tms/graphql"
@@ -13,7 +15,7 @@ PROGRAM_PAGE_BASE = "https://npac-ntch.org/programs/"
 
 # 快取約 6 小時（秒）
 CACHE_TTL_SECONDS = 6 * 60 * 60
-CACHE_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cache")
+CACHE_DIR = project_path("cache")
 CACHE_PATH = os.path.join(CACHE_DIR, "ntch_music_programs.json")
 
 # 標題／簡介／分類含這些關鍵字，視為音樂相關節目

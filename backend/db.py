@@ -3,6 +3,8 @@ import os
 import pymysql
 from configparser import ConfigParser
 
+from paths import project_path
+
 
 class SqlUtils:
     # ======================================================
@@ -10,7 +12,7 @@ class SqlUtils:
     # ======================================================
     def __init__(self):
         self.config = ConfigParser()
-        self.config.read('config.ini', encoding='utf-8')
+        self.config.read(project_path('config.ini'), encoding='utf-8')
 
     def _db_setting(self, env_name, ini_key, default=None):
         value = os.environ.get(env_name)

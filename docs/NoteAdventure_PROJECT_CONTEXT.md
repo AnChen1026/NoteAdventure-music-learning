@@ -38,20 +38,23 @@
 
 ```
 NoteAdventure/
-├── app.py                 # Flask Application Factory（API + 學生一頁版）
+├── backend/               # 後端（Flask）
+│   ├── app.py             # Flask Application Factory（API + 學生一頁版）
+│   ├── db.py
+│   ├── paths.py           # 專案根目錄路徑（config.ini、uploads、cache、material）
+│   ├── requirements.txt
+│   ├── api/               # Flask Blueprint
+│   ├── services/          # 商業邏輯
+│   ├── utils/
+│   └── sql/
 ├── streamlit_app.py       # 老師端 Streamlit 管理後台（僅老師）
-├── db.py
-├── config.ini
-├── requirements.txt
+├── config.ini             # 放在專案根目錄
+├── requirements.txt       # 只引用 backend/requirements.txt
 │
 ├── templates/             # 學生一頁版：殼 + iframe 內頁 HTML
 ├── static/web/            # 學生前端 CSS／JS
 ├── material/              # 學生端正式美術素材
 │
-├── api/                   # Flask Blueprint
-├── services/              # 商業邏輯
-├── utils/
-├── sql/
 ├── uploads/
 │
 ├── docs/
@@ -70,14 +73,15 @@ NoteAdventure/
 
 ## 4. 分層責任
 
-- `app.py`：Flask 應用程式工廠；註冊各 API Blueprint，並提供學生一頁版頁面路由。
-- `api/`：Flask 路由層；負責 HTTP、session、參數驗證，並呼叫 `services/`。
+- `backend/app.py`：Flask 應用程式工廠；註冊各 API Blueprint，並提供學生一頁版頁面路由。
+- `backend/api/`：Flask 路由層；負責 HTTP、session、參數驗證，SQL 一律交給 `services/`（`guards.py` 的登入檢查除外）。
 - `streamlit_app.py`：**老師端** Streamlit 管理後台；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
 - `templates/` + `static/web/`：**學生端**一頁版（SPA 殼 + iframe 內頁）；以 `fetch` 呼叫 Flask API。開啟方式見 `docs/啟動說明.md`。
 - `material/`：學生端正式美術素材。
-- `services/`：負責商業邏輯與資料庫操作。
-- `db.py`：負責資料庫連線、查詢、執行 SQL、commit、rollback 與關閉連線。
-- `utils/`：負責密碼處理、學生帳號與臨時密碼產生等共用工具。
+- `backend/services/`：負責商業邏輯與資料庫操作。
+- `backend/db.py`：負責資料庫連線、查詢、執行 SQL、commit、rollback 與關閉連線。
+- `backend/paths.py`：以專案根目錄為準的路徑；從任何資料夾啟動都讀得到 `config.ini`、`uploads/`、`cache/`。
+- `backend/utils/`：負責密碼處理、學生帳號與臨時密碼產生等共用工具。
 
 前端入口：
 - 後端：一定要啟動 Flask（預設 `:5000`）。
@@ -108,7 +112,7 @@ xp_source
 coin_transaction
 ```
 
-欄位以 `DATABASE_SCHEMA.md` 與 `sql/music_rpg_schema_v2.sql` 為準，不得捏造欄位。
+欄位以 `DATABASE_SCHEMA.md` 與 `backend/sql/music_rpg_schema_v2.sql` 為準，不得捏造欄位。
 
 ## 6. 核心設計決策
 
@@ -260,7 +264,7 @@ DISTINCT_SONGS
 完成條件：
 
 - 依 `NoteAdventure_MVP.md` 期中展示流程，從老師 Streamlit 跑到學生一頁版購買，再回老師查看上傳紀錄
-- 啟動 Flask（`flask --app app run --port 5000`）與 Streamlit（`streamlit run streamlit_app.py`）
+- 啟動 Flask（`flask --app backend/app.py run --port 5000`）與 Streamlit（`streamlit run streamlit_app.py`）
 - 學生端使用 `http://127.0.0.1:5000/student/app`
 - 每個步驟都有中文提示，查無資料時不報錯
 - 準備展示用的測試老師、學生、任務、商品與音檔

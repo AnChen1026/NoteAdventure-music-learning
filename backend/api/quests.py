@@ -1,19 +1,20 @@
 """
 api/quests.py｜任務模板與指派
 
-- 老師 Streamlit：列表 → teacher_show_quest；建立／指派的 SQL 寫在本檔
-- 學生 HTML：查看自己的指派 → student_show_quest
+- 老師：列表／建立／指派 → quest_service
+- 學生：查看自己的指派 → student_show_quest
 """
 
-from datetime import datetime, timedelta
-
 from flask import Blueprint, request, jsonify
-from db import SqlUtils
 from api.guards import get_login_teacher, get_login_student, json_safe
-from services.quest_service import teacher_show_quest, student_show_quest
+from services.quest_service import (
+    teacher_show_quest,
+    student_show_quest,
+    create_quest,
+    assign_quest
+)
 
 quests_bp = Blueprint('quests', __name__)
-db = SqlUtils()
 
 QUEST_TYPES = {'DAILY', 'WEEKLY', 'HIDDEN'}
 CONDITION_TYPES = {
@@ -72,35 +73,19 @@ def api_create_quest():
     if not isinstance(reward_coin, int) or reward_coin < 0:
         return jsonify({'message': '獎勵金幣請輸入非負整數'}), 400
 
-    sql = """
-    INSERT INTO quest_list (
-    teacher_id,
-    quest_name,
-    quest_type,
-    condition_type,
-    condition_value,
-    reward_xp,
-    reward_coin,
-    is_repeatable
+    result = create_quest(
+        teacher,
+        quest_name,
+        quest_type,
+        condition_type,
+        condition_value,
+        reward_xp,
+        reward_coin,
+        is_repeatable
     )
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    """
-    rowcount = db.execute(
-        sql,
-        (
-            teacher['teacher_id'],
-            quest_name,
-            quest_type,
-            condition_type,
-            condition_value,
-            reward_xp,
-            reward_coin,
-            bool(is_repeatable)
-        )
-    )
-    if rowcount > 0:
-        return jsonify({'message': '任務新建成功'}), 201
-    return jsonify({'message': '任務建立失敗'}), 500
+    if result == '任務新建成功':
+        return jsonify({'message': result}), 201
+    return jsonify({'message': result}), 500
 
 
 # ======================================================
@@ -117,79 +102,20 @@ def api_assign_quest(quest_id):
     if not isinstance(student_id, int):
         return jsonify({'message': '請提供學生編號 student_id'}), 400
 
-    # 只能指派自己啟用中的任務
-    quest = db.query_one(
-        """
-        SELECT quest_id, quest_name, quest_type
-        FROM quest_list
-        WHERE quest_id = %s
-        AND teacher_id = %s
-        AND is_active = TRUE;
-        """,
-        (quest_id, teacher['teacher_id'])
-    )
-    if not quest:
-        return jsonify({'message': '查無此任務或任務未啟用'}), 404
+    result = assign_quest(teacher, quest_id, student_id)
+    if isinstance(result, str):
+        if result.startswith('此期間已指派過'):
+            return jsonify({'message': result}), 409
+        if result == '任務指派失敗':
+            return jsonify({'message': result}), 500
+        return jsonify({'message': result}), 404
 
-    # 只能指派給自己的學生
-    student = db.query_one(
-        """
-        SELECT student_id, student_name
-        FROM student
-        WHERE student_id = %s
-        AND teacher_id = %s;
-        """,
-        (student_id, teacher['teacher_id'])
-    )
-    if not student:
-        return jsonify({'message': '查無此學生'}), 404
-
-    assigned_at = datetime.now()
-    if quest['quest_type'] == 'HIDDEN':
-        expires_at = None
-        period_key = 'ONCE'
-    elif quest['quest_type'] == 'DAILY':
-        expires_at = assigned_at + timedelta(days=1)
-        period_key = assigned_at.strftime('%Y-%m-%d')
-    else:
-        expires_at = assigned_at + timedelta(days=7)
-        iso = assigned_at.isocalendar()
-        period_key = f'{iso.year}-W{iso.week:02d}'
-
-    exist = db.query_one(
-        """
-        SELECT student_quest_id
-        FROM student_quest
-        WHERE student_id = %s
-        AND quest_id = %s
-        AND period_key = %s;
-        """,
-        (student_id, quest_id, period_key)
-    )
-    if exist:
-        return jsonify({'message': f'此期間已指派過該任務（{period_key}）'}), 409
-
-    rowcount = db.execute(
-        """
-        INSERT INTO student_quest (
-        student_id,
-        quest_id,
-        assigned_at,
-        expires_at,
-        period_key
-        )
-        VALUES (%s, %s, %s, %s, %s)
-        """,
-        (student_id, quest_id, assigned_at, expires_at, period_key)
-    )
-    if rowcount > 0:
-        return jsonify({
-            'message': '任務指派成功',
-            'period_key': period_key,
-            'assigned_at': json_safe(assigned_at),
-            'expires_at': json_safe(expires_at)
-        }), 201
-    return jsonify({'message': '任務指派失敗'}), 500
+    return jsonify({
+        'message': '任務指派成功',
+        'period_key': result['period_key'],
+        'assigned_at': json_safe(result['assigned_at']),
+        'expires_at': json_safe(result['expires_at'])
+    }), 201
 
 
 # ======================================================

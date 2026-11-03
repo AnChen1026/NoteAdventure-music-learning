@@ -197,3 +197,33 @@ def redeem_purchase(teacher, purchase_id):
     if rowcount > 0:
         return f"{purchase['student_name']} 的 {purchase['item_name']} 已完成兌換"
     return '兌換失敗'
+
+
+# ======================================================
+# 老師建立商品（stock 為 None 表示不限量）
+# ======================================================
+def create_shop_item(teacher, item_name, item_type, price, stock, description):
+    rowcount = db.execute(
+        """
+        INSERT INTO shop_item (
+        teacher_id,
+        item_name,
+        item_type,
+        price,
+        stock,
+        description
+        )
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,
+        (
+            teacher['teacher_id'],
+            item_name,
+            item_type,
+            price,
+            stock,
+            description
+        )
+    )
+    if rowcount > 0:
+        return '商品新增成功'
+    return '商品新增失敗'

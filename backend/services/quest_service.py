@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from db import SqlUtils
 db = SqlUtils()
 
@@ -92,3 +94,122 @@ def update_quest_progress(student):
             'condition_value': quest['condition_value']
         })
     return progress_list
+
+
+# ======================================================
+# 老師建立任務
+# ======================================================
+def create_quest(teacher, quest_name, quest_type, condition_type, condition_value,
+                 reward_xp, reward_coin, is_repeatable):
+    sql = """
+    INSERT INTO quest_list (
+    teacher_id,
+    quest_name,
+    quest_type,
+    condition_type,
+    condition_value,
+    reward_xp,
+    reward_coin,
+    is_repeatable
+    )
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    """
+    rowcount = db.execute(
+        sql,
+        (
+            teacher['teacher_id'],
+            quest_name,
+            quest_type,
+            condition_type,
+            condition_value,
+            reward_xp,
+            reward_coin,
+            bool(is_repeatable)
+        )
+    )
+    if rowcount > 0:
+        return '任務新建成功'
+    return '任務建立失敗'
+
+
+# ======================================================
+# 依任務類型計算期限與期間代碼
+# DAILY 一天、WEEKLY 七天（ISO 週）、HIDDEN 無期限
+# ======================================================
+def quest_period(quest_type, assigned_at):
+    if quest_type == 'HIDDEN':
+        return None, 'ONCE'
+    if quest_type == 'DAILY':
+        return assigned_at + timedelta(days=1), assigned_at.strftime('%Y-%m-%d')
+    iso = assigned_at.isocalendar()
+    return assigned_at + timedelta(days=7), f'{iso.year}-W{iso.week:02d}'
+
+
+# ======================================================
+# 老師指派任務給學生
+# 成功回傳 dict；失敗回傳錯誤訊息字串
+# ======================================================
+def assign_quest(teacher, quest_id, student_id):
+    # 只能指派自己啟用中的任務
+    quest = db.query_one(
+        """
+        SELECT quest_id, quest_name, quest_type
+        FROM quest_list
+        WHERE quest_id = %s
+        AND teacher_id = %s
+        AND is_active = TRUE;
+        """,
+        (quest_id, teacher['teacher_id'])
+    )
+    if not quest:
+        return '查無此任務或任務未啟用'
+
+    # 只能指派給自己的學生
+    student = db.query_one(
+        """
+        SELECT student_id, student_name
+        FROM student
+        WHERE student_id = %s
+        AND teacher_id = %s;
+        """,
+        (student_id, teacher['teacher_id'])
+    )
+    if not student:
+        return '查無此學生'
+
+    assigned_at = datetime.now()
+    expires_at, period_key = quest_period(quest['quest_type'], assigned_at)
+
+    exist = db.query_one(
+        """
+        SELECT student_quest_id
+        FROM student_quest
+        WHERE student_id = %s
+        AND quest_id = %s
+        AND period_key = %s;
+        """,
+        (student_id, quest_id, period_key)
+    )
+    if exist:
+        return f'此期間已指派過該任務（{period_key}）'
+
+    rowcount = db.execute(
+        """
+        INSERT INTO student_quest (
+        student_id,
+        quest_id,
+        assigned_at,
+        expires_at,
+        period_key
+        )
+        VALUES (%s, %s, %s, %s, %s)
+        """,
+        (student_id, quest_id, assigned_at, expires_at, period_key)
+    )
+    if rowcount > 0:
+        return {
+            'period_key': period_key,
+            'assigned_at': assigned_at,
+            'expires_at': expires_at
+        }
+    return '任務指派失敗'

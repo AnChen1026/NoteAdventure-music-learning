@@ -1,7 +1,7 @@
 """
 api/students.py｜老師管理學生帳號
 
-主要給 streamlit_app.py 使用：
+老師端使用：
 - GET  /api/students              → student_service.show_student
 - POST /api/students              → create_student（回傳帳號＋臨時密碼）
 - POST /api/students/reset-password → reset_student_password
@@ -9,7 +9,12 @@ api/students.py｜老師管理學生帳號
 
 from flask import Blueprint, request, jsonify
 from api.guards import get_login_teacher, json_safe
-from services.student_service import show_student, create_student, reset_student_password
+from services.student_service import (
+    show_student,
+    create_student,
+    reset_student_password,
+    teacher_has_student
+)
 
 students_bp = Blueprint('students', __name__)
 
@@ -70,18 +75,7 @@ def api_reset_student_password():
         return jsonify({'message': '請輸入學生帳號'}), 400
 
     # 確認學生屬於這位老師
-    from db import SqlUtils
-    db = SqlUtils()
-    student = db.query_one(
-        """
-        SELECT student_id
-        FROM student
-        WHERE username = %s
-        AND teacher_id = %s;
-        """,
-        (username, teacher['teacher_id'])
-    )
-    if not student:
+    if not teacher_has_student(teacher, username):
         return jsonify({'message': '找不到該學生帳號'}), 404
 
     result = reset_student_password(username)

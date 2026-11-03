@@ -1,16 +1,16 @@
 """
 api/shop.py｜商店、購買、背包、實體兌換
 
-老師 Streamlit：商品 CRUD 檢視、待兌換、標記兌換
-學生 HTML：看商品、購買（student_shop.js）
-→ 多半呼叫 services.shop_service
+老師：商品清單、建立商品、待兌換、標記兌換
+學生：看商品、購買、背包
+→ 全部呼叫 services.shop_service
 """
 
 from flask import Blueprint, request, jsonify
-from db import SqlUtils
 from api.guards import get_login_teacher, get_login_student, json_safe
 from services.shop_service import (
     teacher_show_shop_item,
+    create_shop_item,
     student_show_shop_item,
     purchase_item,
     student_show_backpack,
@@ -20,7 +20,6 @@ from services.shop_service import (
 from services.student_service import get_student
 
 shop_bp = Blueprint('shop', __name__)
-db = SqlUtils()
 
 ITEM_TYPES = {'VIRTUAL', 'PHYSICAL'}
 
@@ -67,30 +66,10 @@ def api_create_shop_item():
     if description == '':
         description = None
 
-    rowcount = db.execute(
-        """
-        INSERT INTO shop_item (
-        teacher_id,
-        item_name,
-        item_type,
-        price,
-        stock,
-        description
-        )
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """,
-        (
-            teacher['teacher_id'],
-            item_name,
-            item_type,
-            price,
-            stock,
-            description
-        )
-    )
-    if rowcount > 0:
-        return jsonify({'message': '商品新增成功'}), 201
-    return jsonify({'message': '商品新增失敗'}), 500
+    result = create_shop_item(teacher, item_name, item_type, price, stock, description)
+    if result == '商品新增成功':
+        return jsonify({'message': result}), 201
+    return jsonify({'message': result}), 500
 
 
 # ======================================================

@@ -30,7 +30,7 @@ NoteAdventure 是一套給一對一音樂老師使用的學生練習管理系統
 | 老師 | Streamlit（僅老師） | `streamlit run streamlit_app.py` |
 | 學生 | Flask HTML 一頁版 | `/student/app` |
 
-分層概要：`前端` → `api/` → `services/` → MySQL。  
+分層概要：`前端` → `backend/api/` → `backend/services/` → `backend/db.py` → MySQL。  
 開啟步驟見 [啟動說明](./啟動說明.md)。
 
 ## 技術堆疊
@@ -46,15 +46,19 @@ NoteAdventure 是一套給一對一音樂老師使用的學生練習管理系統
 
 ```text
 NoteAdventure/
-├── app.py                 # Flask（API + 學生一頁版）
+├── backend/               # 後端（Flask）
+│   ├── app.py             #   進入點（API + 學生一頁版）
+│   ├── db.py              #   MySQL 連線
+│   ├── paths.py           #   專案路徑（config.ini、uploads、cache）
+│   ├── api/               #   HTTP／session（只呼叫 services）
+│   ├── services/          #   商業邏輯與 SQL
+│   ├── utils/             #   密碼、帳號產生工具
+│   ├── sql/               #   Schema
+│   └── requirements.txt
 ├── streamlit_app.py       # 老師管理後台
 ├── templates/             # 學生 HTML（SPA 殼 + 內頁）
 ├── static/web/            # 學生 CSS／JS
 ├── material/              # 學生正式素材
-├── api/                   # HTTP／session
-├── services/              # 商業邏輯
-├── sql/                   # Schema
-├── utils/                 # 密碼、帳號產生工具
 └── docs/                  # 本目錄文件
 ```
 
