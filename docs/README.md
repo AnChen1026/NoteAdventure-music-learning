@@ -59,6 +59,7 @@ NoteAdventure/
 ├── templates/             # 學生 HTML（SPA 殼 + 內頁）
 ├── static/web/            # 學生 CSS／JS
 ├── material/              # 學生正式素材
+├── tests/                 # pytest 自動化測試（見啟動說明）
 └── docs/                  # 本目錄文件
 ```
 
@@ -95,7 +96,7 @@ NoteAdventure/
 
 - 老師網頁端：任務修改／刪除／啟停、商品進階管理
 - 部分任務條件類型
-- 自動化測試、音檔雲端持久化
+- 音檔雲端持久化
 
 ## 專題定位
 

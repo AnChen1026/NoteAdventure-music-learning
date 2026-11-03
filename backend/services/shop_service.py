@@ -104,8 +104,8 @@ def purchase_item(student, item_id):
     if item['stock'] is not None:
         stock_sql = """
         UPDATE shop_item
-        SET stock = stock - 1,
-            is_active = CASE WHEN stock <= 1 THEN FALSE ELSE is_active END
+        SET is_active = CASE WHEN stock <= 1 THEN FALSE ELSE is_active END,
+            stock = stock - 1
         WHERE item_id = %s
         AND stock > 0;
         """
