@@ -18,12 +18,12 @@
     - **學生**：查看任務、上傳練習錄音、取得 XP 與金幣、查看寵物成長。
 - **技術堆疊**：
     - **前端介面（正式兩條線）**：
-        - **老師端：Streamlit**（`streamlit_app.py`，僅老師管理）
+        - **老師端：Vue 管理後台**（`/teacher`）
             - 老師登入／註冊、學生、任務、上傳紀錄、商店／兌換。
             - 透過 HTTP 呼叫 Flask API，不直接操作資料庫。
-        - **學生端：HTML／CSS／JS 一頁版**（正式入口 `/student/app`）
-            - SPA 殼（BGM／橫放／全螢幕）+ iframe 載入功能內頁（登入、主頁、琴房、商店、背包、任務、寵物、教室、設定）。
-            - 由 Flask 提供 `templates/`、`static/web/`，以 `fetch` 呼叫同一套 Flask API。
+        - **學生端：Vue 一頁版**（正式入口 `/student`）
+            - 外殼（BGM／橫放／全螢幕）+ Vue Router 切換功能頁（登入、主頁、琴房、商店、背包、任務、寵物、教室、設定）。
+        - 兩端同屬 `frontend/` 一個 Vue 3 + Vite 專案，打包後由 Flask 提供，以 `fetch` 呼叫同一套 Flask API。
         - 開啟方式見 `docs/啟動說明.md`。
     - **後端**：Python、Flask
         - Flask 提供 RESTful API，並同時提供學生 HTML 頁面。
@@ -149,15 +149,15 @@ completed = FALSE 且 expires_at <= NOW()
 MVP 預計採用以下架構（老師與學生前端分開，共用同一套 Flask API）：
 
 ```
-老師：Streamlit → Flask API → Service → PyMySQL → MySQL
-學生：HTML/JS  → Flask API → Service → PyMySQL → MySQL
+老師：Vue（/teacher） → Flask API → Service → PyMySQL → MySQL
+學生：Vue（/student） → Flask API → Service → PyMySQL → MySQL
 ```
 
 ```mermaid
 sequenceDiagram
     participant Teacher as 老師
     participant Student as 學生
-    participant TeacherUI as Streamlit老師端
+    participant TeacherUI as Vue老師端
     participant StudentUI as 學生HTML前端
     participant API as Flask API
     participant Service as Python Service
@@ -490,7 +490,7 @@ MVP 完成時需符合：
 
 任務進度計算目前只支援 `PRACTICE_COUNT` 與 `DISTINCT_SONGS`，其餘條件類型尚未實作。
 
-正式前端：老師 Streamlit；學生一頁版 `/student/app`。開啟與部署見 `docs/啟動說明.md`。
+正式前端：Vue 3（老師 `/teacher`；學生 `/student`）。開啟與部署見 `docs/啟動說明.md`。
 
 網頁端尚未涵蓋：老師任務修改／刪除／啟停、商品修改／刪除／上下架、自動化測試。
 
@@ -572,17 +572,17 @@ MVP 完成時需符合：
 ### 8. 期中展示流程
 
 期中展示固定使用以下流程。  
-老師操作在 **Streamlit**；切換學生時改開 **學生一頁版**（`http://127.0.0.1:5000/student/app`）。兩邊共用已啟動的 Flask API。
+老師操作在 **老師後台**（`http://127.0.0.1:5000/teacher`）；切換學生時改開 **學生一頁版**（`http://127.0.0.1:5000/student`，建議另開無痕視窗，避免登入狀態互相覆蓋）。
 
 ```
-老師登入（Streamlit）
+老師登入（/teacher）
 → 查看學生列表
 → 建立一位測試學生
 → 建立或選擇一項任務
 → 建立一項虛擬商品
 → 指派任務給學生
 → 顯示任務期限
-→ 切換至學生一頁版（/student/app）
+→ 切換至學生一頁版（/student）
 → 進入主頁地圖
 → 查看任務欄進度
 → 上傳練習音檔（琴房）
@@ -591,7 +591,7 @@ MVP 完成時需符合：
 → 顯示 XP 與金幣獎勵
 → 查看寵物階段
 → 於商店購買一項虛擬商品
-→ 老師於 Streamlit 查看學生上傳紀錄
+→ 老師於後台查看學生上傳紀錄
 ```
 
 ---
@@ -608,7 +608,7 @@ NoteAdventure MVP 不以功能數量判斷，而以下列條件作為成功標�
 6. 寵物可以依照 XP 呈現正確成長階段。
 7. 虛擬商店能正常運作。
 8. 使用者能在短時間內理解「練習、任務、獎勵、寵物成長」之間的關係。
-9. 開發者能說明老師 Streamlit、學生 HTML、Flask API、Service、PyMySQL 與 MySQL 之間的資料流。
+9. 開發者能說明 Vue 前端、Flask API、Service、PyMySQL 與 MySQL 之間的資料流。
 10. 開發者能閱讀、測試並修改 AI Agent 產生的程式碼。
 11. 系統能完整展示以下核心閉環：
 

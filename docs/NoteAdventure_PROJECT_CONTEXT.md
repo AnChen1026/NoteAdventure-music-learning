@@ -16,8 +16,8 @@
 
 - Python 3.12
 - Flask（API + 學生 HTML 頁面）
-- Streamlit（老師端網頁）
-- HTML／CSS／JS（學生端素材 UI，由 Flask 提供）
+- Vue 3 + Vue Router + Vite（老師、學生前端，打包後由 Flask 提供）
+- Node.js（前端開發與打包）
 - MySQL
 - PyMySQL
 - bcrypt
@@ -39,20 +39,18 @@
 ```
 NoteAdventure/
 ├── backend/               # 後端（Flask）
-│   ├── app.py             # Flask Application Factory（API + 學生一頁版）
+│   ├── app.py             # Flask Application Factory（API + Vue 打包檔）
 │   ├── db.py
-│   ├── paths.py           # 專案根目錄路徑（config.ini、uploads、cache、material）
+│   ├── paths.py           # 專案根目錄路徑（config.ini、uploads、cache、material、frontend/dist）
 │   ├── requirements.txt
 │   ├── api/               # Flask Blueprint
 │   ├── services/          # 商業邏輯
 │   ├── utils/
 │   └── sql/
-├── streamlit_app.py       # 老師端 Streamlit 管理後台（僅老師）
 ├── config.ini             # 放在專案根目錄
 ├── requirements.txt       # 只引用 backend/requirements.txt
 │
-├── templates/             # 學生一頁版：殼 + iframe 內頁 HTML
-├── static/web/            # 學生前端 CSS／JS
+├── frontend/              # Vue 3 前端（src/views/student、src/views/teacher）
 ├── material/              # 學生端正式美術素材
 │
 ├── uploads/
@@ -64,19 +62,15 @@ NoteAdventure/
 │   ├── NoteAdventure_PROJECT_CONTEXT.md
 │   └── DATABASE_SCHEMA.md
 │
-├── .streamlit/
-│   └── config.toml
-│
 └── .cursor/
     └── rules/
 ```
 
 ## 4. 分層責任
 
-- `backend/app.py`：Flask 應用程式工廠；註冊各 API Blueprint，並提供學生一頁版頁面路由。
+- `backend/app.py`：Flask 應用程式工廠；註冊各 API Blueprint，並提供 `frontend/dist` 與素材路由。
 - `backend/api/`：Flask 路由層；負責 HTTP、session、參數驗證，SQL 一律交給 `services/`（`guards.py` 的登入檢查除外）。
-- `streamlit_app.py`：**老師端** Streamlit 管理後台；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
-- `templates/` + `static/web/`：**學生端**一頁版（SPA 殼 + iframe 內頁）；以 `fetch` 呼叫 Flask API。開啟方式見 `docs/啟動說明.md`。
+- `frontend/`：Vue 3 前端。`/student` 學生一頁版（16:9 舞台、BGM）、`/teacher` 老師後台；以 `fetch` 呼叫 Flask API，不直接操作資料庫。開啟方式見 `docs/啟動說明.md`。
 - `material/`：學生端正式美術素材。
 - `backend/services/`：負責商業邏輯與資料庫操作。
 - `backend/db.py`：負責資料庫連線、查詢、執行 SQL、commit、rollback 與關閉連線。
@@ -85,7 +79,7 @@ NoteAdventure/
 
 前端入口：
 - 後端：一定要啟動 Flask（預設 `:5000`）。
-- 老師：`streamlit run streamlit_app.py`。
+- 老師：瀏覽器開啟 `http://127.0.0.1:5000/teacher`。
 - 學生：瀏覽器開啟 `http://127.0.0.1:5000/student/app`。
 
 ## 5. 資料庫
@@ -192,9 +186,7 @@ DISTINCT_SONGS
 - 學生查看商店與購買商品
 - 老師處理實體商品兌換
 - Flask Application Factory 與核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
-- Streamlit **老師端** UI 串接 Flask（學生／任務／上傳紀錄／商品／兌換）
-- Streamlit「新增商品」不限量庫存勾選可即時顯示／隱藏庫存欄位
-- 學生 HTML 一頁版：殼層 + 登入、主頁地圖、商店、背包、任務欄、寵物、琴房、教室、設定
+- 前端改為 Vue 3：老師後台（學生／任務／上傳紀錄／商品／兌換）與學生一頁版（登入、主頁地圖、商店、背包、任務欄、寵物、琴房、教室、設定）
 
 ### 尚未完成
 
@@ -207,7 +199,7 @@ DISTINCT_SONGS
 ## 9. 核心流程
 
 ```
-老師登入（Streamlit）
+老師登入（/teacher）
 → 建立學生
 → 建立任務
 → 指派任務
@@ -257,14 +249,14 @@ DISTINCT_SONGS
 ## 12. 下一步
 
 ```
-完成期中展示流程演練（老師 Streamlit + 學生 /student/app）
+完成期中展示流程演練（老師 /teacher + 學生 /student）
 （可選）補齊老師端尚未涵蓋的任務／商品管理功能
 ```
 
 完成條件：
 
-- 依 `NoteAdventure_MVP.md` 期中展示流程，從老師 Streamlit 跑到學生一頁版購買，再回老師查看上傳紀錄
-- 啟動 Flask（`flask --app backend/app.py run --port 5000`）與 Streamlit（`streamlit run streamlit_app.py`）
+- 依 `NoteAdventure_MVP.md` 期中展示流程，從老師後台跑到學生一頁版購買，再回老師查看上傳紀錄
+- 打包前端（`cd frontend && npm run build`）並啟動 Flask（`flask --app backend/app.py run --port 5000`），或直接 `docker compose up`
 - 學生端使用 `http://127.0.0.1:5000/student/app`
 - 每個步驟都有中文提示，查無資料時不報錯
 - 準備展示用的測試老師、學生、任務、商品與音檔
