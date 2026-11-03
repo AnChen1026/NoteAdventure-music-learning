@@ -27,8 +27,8 @@ NoteAdventure 是一套給一對一音樂老師使用的學生練習管理系統
 
 | 角色 | 介面 | 進入方式 |
 |------|------|----------|
-| 老師 | Streamlit（僅老師） | `streamlit run streamlit_app.py` |
-| 學生 | Flask HTML 一頁版 | `/student/app` |
+| 老師 | Vue 管理後台 | `/teacher` |
+| 學生 | Vue 一頁版 | `/student` |
 
 分層概要：`前端` → `api/` → `services/` → MySQL。  
 開啟步驟見 [啟動說明](./啟動說明.md)。
@@ -37,8 +37,8 @@ NoteAdventure 是一套給一對一音樂老師使用的學生練習管理系統
 
 - Python 3.12
 - Flask（API + 學生 HTML）
-- Streamlit（老師端）
-- HTML／CSS／JS
+- Vue 3 + Vue Router + Vite（老師、學生前端）
+- Node.js（只用於前端開發與打包）
 - MySQL、PyMySQL、bcrypt
 - Git／GitHub、venv
 
@@ -46,10 +46,8 @@ NoteAdventure 是一套給一對一音樂老師使用的學生練習管理系統
 
 ```text
 NoteAdventure/
-├── app.py                 # Flask（API + 學生一頁版）
-├── streamlit_app.py       # 老師管理後台
-├── templates/             # 學生 HTML（SPA 殼 + 內頁）
-├── static/web/            # 學生 CSS／JS
+├── app.py                 # Flask（API + 提供 Vue 打包檔）
+├── frontend/              # Vue 3 前端（/student、/teacher）
 ├── material/              # 學生正式素材
 ├── api/                   # HTTP／session
 ├── services/              # 商業邏輯
@@ -83,8 +81,8 @@ NoteAdventure/
 已完成：
 
 - MySQL Schema、Flask API、`services/` 商業邏輯
-- 老師 Streamlit：註冊／登入、學生、任務、上傳試聽、商店／兌換
-- 學生一頁版 `/student/app`：登入、主頁、琴房、任務、寵物、商店、背包、教室、設定
+- 老師 Vue 後台 `/teacher`：註冊／登入、學生、任務、上傳試聽、商店／兌換
+- 學生 Vue 一頁版 `/student`：登入、主頁、琴房、任務、寵物、商店、背包、教室、設定
 - 已移除舊 Console 版與 `archive/` 備援，repo 只保留正式版本
 
 尚未完成（舉例）：

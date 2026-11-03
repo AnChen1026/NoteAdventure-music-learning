@@ -1,0 +1,197 @@
+/* ======================================================
+   學生一頁版外殼（只在 html.na-student 時生效，不影響老師後台）
+   ====================================================== */
+
+/* 鎖住外層捲動，避免手機整頁上下滑 */
+html.na-student,
+html.na-student body {
+  width: 100%;
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: none;
+  -webkit-text-size-adjust: 100%;
+  background: #1a1410;
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+}
+
+html.na-student body {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+html.na-student *,
+html.na-student *::before,
+html.na-student *::after {
+  box-sizing: border-box;
+}
+
+/* 外殼舞台：維持 16:9 */
+.na-shell {
+  position: relative;
+  isolation: isolate;
+  width: min(100vw, calc(100dvh * 16 / 9));
+  height: min(100dvh, calc(100vw * 9 / 16));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  background: #1a1410;
+  touch-action: manipulation;
+}
+
+/* 各功能頁的 .stage 填滿外殼（原本各頁自己算 16:9） */
+html.na-student .na-shell .stage {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  max-height: none;
+  aspect-ratio: auto;
+  box-shadow: none;
+}
+
+/* 清單區才允許垂直滑動 */
+html.na-student .item-list,
+html.na-student .quest-list,
+html.na-student .practice-panel,
+html.na-student .settings-panel,
+html.na-student .shop-panel,
+html.na-student .quest-panel,
+html.na-student .class-board,
+html.na-student .backpack-grid {
+  touch-action: pan-y;
+}
+
+html.na-student input,
+html.na-student textarea,
+html.na-student select {
+  touch-action: manipulation;
+}
+
+/* ---------- 換頁：純淡入淡出 ---------- */
+.page-enter-active {
+  transition: opacity 0.4s ease;
+}
+
+.page-leave-active {
+  transition: opacity 0.28s ease;
+  pointer-events: none;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter-active,
+  .page-leave-active {
+    transition-duration: 0.15s;
+  }
+}
+
+/* ---------- BGM 開關（右上角小鈕） ---------- */
+.bgm-toggle {
+  position: absolute;
+  right: 2.2%;
+  top: 2.5%;
+  z-index: 30;
+  width: clamp(36px, 4.5vw, 48px);
+  height: clamp(36px, 4.5vw, 48px);
+  border: 1px solid rgba(120, 80, 30, 0.45);
+  border-radius: 50%;
+  background: rgba(40, 28, 16, 0.72);
+  color: #fff3dd;
+  font-size: clamp(16px, 1.8vw, 22px);
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.bgm-toggle:hover {
+  filter: brightness(1.08);
+}
+
+.bgm-toggle:focus,
+.bgm-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 200, 80, 0.35);
+}
+
+.bgm-toggle.is-off {
+  opacity: 0.72;
+}
+
+/* ---------- 直向時：請使用者橫放裝置 ---------- */
+.rotate-gate {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+  background: #1a1410;
+  color: #fff3dd;
+  text-align: center;
+}
+
+.rotate-gate__icon {
+  width: 72px;
+  height: 72px;
+  border: 3px solid #c9a227;
+  border-radius: 12px;
+  position: relative;
+  transform: rotate(90deg);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.25);
+}
+
+.rotate-gate__icon::after {
+  content: "";
+  position: absolute;
+  left: 10%;
+  top: 12%;
+  width: 18%;
+  height: 12%;
+  border-radius: 2px;
+  background: #c9a227;
+}
+
+.rotate-gate__title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.rotate-gate__hint {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255, 243, 221, 0.85);
+  max-width: 16em;
+}
+
+/* 僅在「窄螢幕直向」時顯示（桌機寬螢幕直向通常不擋） */
+@media (orientation: portrait) and (max-width: 900px) {
+  .rotate-gate {
+    display: flex;
+  }
+
+  .na-shell {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
