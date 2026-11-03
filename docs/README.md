@@ -54,7 +54,7 @@ NoteAdventure/
 ├── api/                   # HTTP／session
 ├── services/              # 商業邏輯
 ├── sql/                   # Schema
-├── archive/               # 舊版／備援（非正式）
+├── utils/                 # 密碼、帳號產生工具
 └── docs/                  # 本目錄文件
 ```
 
@@ -68,7 +68,6 @@ NoteAdventure/
 | [資料庫 Schema](./DATABASE_SCHEMA.md) | 資料表說明（以 SQL 為準） |
 | [README](./README.md) | 本頁：總覽與索引 |
 
-舊版網頁結構、期中串接地圖、部署草稿等已移至 `archive/docs/`。
 
 ## 開發原則
 
@@ -86,7 +85,7 @@ NoteAdventure/
 - MySQL Schema、Flask API、`services/` 商業邏輯
 - 老師 Streamlit：註冊／登入、學生、任務、上傳試聽、商店／兌換
 - 學生一頁版 `/student/app`：登入、主頁、琴房、任務、寵物、商店、背包、教室、設定
-- 舊 Console／Streamlit 學生備援整理至 `archive/`
+- 已移除舊 Console 版與 `archive/` 備援，repo 只保留正式版本
 
 尚未完成（舉例）：
 

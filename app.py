@@ -59,12 +59,12 @@ def create_app():
     app.register_blueprint(practice_bp)    # 練習上傳（會連動任務進度與獎勵）
     app.register_blueprint(shop_bp)        # 商店／購買／兌換
     app.register_blueprint(pet_bp)         # 寵物狀態
-    app.register_blueprint(dashboard_bp)   # 老師／學生首頁摘要
+    app.register_blueprint(dashboard_bp)   # 老師首頁摘要
     app.register_blueprint(class_bp)       # 教室：兩廳院節目看板
 
     # ---------- 學生「網頁」路由（回傳 HTML，不是 JSON）----------
     # 正式入口只有一頁版殼；其餘路徑是殼裡 iframe 載入的功能內頁。
-    # 詳細開啟方式：docs/啟動說明.md ；舊版結構筆記：archive/docs/
+    # 詳細開啟方式：docs/啟動說明.md
 
     @app.get('/student')
     @app.get('/student/')

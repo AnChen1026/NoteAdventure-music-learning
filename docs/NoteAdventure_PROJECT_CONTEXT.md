@@ -3,7 +3,7 @@
 > 本文件提供 Cursor Agent 與其他 AI 工具專案上下文。開發前必須先閱讀本文件。
 > 
 
-開啟方式請見：`docs/啟動說明.md`。舊版結構／期中串接筆記在 `archive/docs/`。
+開啟方式請見：`docs/啟動說明.md`。
 
 ## 1. 專案目的
 
@@ -54,7 +54,6 @@ NoteAdventure/
 ├── sql/
 ├── uploads/
 │
-├── archive/               # 舊版 Console／Streamlit 學生備援／期中簡報等
 ├── docs/
 │   ├── README.md                          # 總覽與文件索引
 │   ├── 啟動說明.md                        # 本機／雲端開啟
@@ -76,7 +75,6 @@ NoteAdventure/
 - `streamlit_app.py`：**老師端** Streamlit 管理後台；透過 `requests.Session` 呼叫 Flask API，不直接操作資料庫。
 - `templates/` + `static/web/`：**學生端**一頁版（SPA 殼 + iframe 內頁）；以 `fetch` 呼叫 Flask API。開啟方式見 `docs/啟動說明.md`。
 - `material/`：學生端正式美術素材。
-- `archive/`：舊版 Console、Streamlit 學生備援、期中簡報、未用素材（非正式入口）。
 - `services/`：負責商業邏輯與資料庫操作。
 - `db.py`：負責資料庫連線、查詢、執行 SQL、commit、rollback 與關閉連線。
 - `utils/`：負責密碼處理、學生帳號與臨時密碼產生等共用工具。
@@ -171,13 +169,11 @@ DISTINCT_SONGS
 - `execute_transaction()`
 - bcrypt hash／verify
 - 老師註冊與登入
-- 老師選單
 - 建立與查看學生
 - 重設學生密碼
 - 修改老師密碼
 - 學生首次登入改密碼
-- 任務查看、建立、修改、刪除
-- 任務啟用／停用
+- 任務查看、建立
 - 任務指派
 - 任務期限
 - `period_key`
@@ -194,20 +190,15 @@ DISTINCT_SONGS
 - Flask Application Factory 與核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
 - Streamlit **老師端** UI 串接 Flask（學生／任務／上傳紀錄／商品／兌換）
 - Streamlit「新增商品」不限量庫存勾選可即時顯示／隱藏庫存欄位
-- 學生 HTML 一頁版：殼層 + 登入、主頁地圖、商店、任務欄、寵物、琴房、教室、設定
-
-### 進行中
-
-- 學生 HTML：背包頁
+- 學生 HTML 一頁版：殼層 + 登入、主頁地圖、商店、背包、任務欄、寵物、琴房、教室、設定
 
 ### 尚未完成
 
-- 網頁端老師：任務修改／刪除／啟停、商品修改／刪除／上下架
-- 學生 HTML：背包
+- 老師端：任務修改／刪除／啟停、商品修改／刪除／上下架（舊 Console 版有，已隨 Console 移除，需重新以 API 實作）
 - 其他任務條件判斷（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
 - 自動化測試
 
-備註：正式學生入口為 `/student/app`；舊 Streamlit 學生頁備份在 `archive/streamlit_student/`。
+備註：正式學生入口為 `/student/app`。
 
 ## 9. 核心流程
 
@@ -262,7 +253,6 @@ DISTINCT_SONGS
 ## 12. 下一步
 
 ```
-補齊學生 HTML：背包頁
 完成期中展示流程演練（老師 Streamlit + 學生 /student/app）
 （可選）補齊老師端尚未涵蓋的任務／商品管理功能
 ```

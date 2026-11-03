@@ -94,33 +94,3 @@ def login_student(username, password):
     except Exception as e:
         print("登入失敗：", e)
         return None
-
-
-# ================================================
-# 學生修改密碼
-# ================================================
-def change_student_password(student, old_password):
-    while True:
-        new_password = input('請輸入新密碼：')
-        confirm_password = input('請確認新密碼：')
-        if confirm_password != new_password:
-            print('密碼不一致')
-
-        elif confirm_password == old_password:
-            print('新密碼與原密碼相同')
-
-        elif confirm_password == new_password:
-            password_hash = hash_password(new_password)
-            sql = """
-            UPDATE student
-            SET password_hash = %s,
-                password_changed = TRUE
-            WHERE student_id = %s;
-            """
-            rowcount = db.execute(sql, (password_hash, student['student_id']))
-            if rowcount > 0:
-                student['password_hash'] = password_hash
-                student['password_changed'] = 1
-                return '密碼修改成功'
-            
-            return '密碼修改失敗'

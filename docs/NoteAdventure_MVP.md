@@ -22,9 +22,9 @@
             - 老師登入／註冊、學生、任務、上傳紀錄、商店／兌換。
             - 透過 HTTP 呼叫 Flask API，不直接操作資料庫。
         - **學生端：HTML／CSS／JS 一頁版**（正式入口 `/student/app`）
-            - SPA 殼（BGM／橫放／全螢幕）+ iframe 載入功能內頁（登入、主頁、琴房、商店、任務、寵物、教室、設定）。
+            - SPA 殼（BGM／橫放／全螢幕）+ iframe 載入功能內頁（登入、主頁、琴房、商店、背包、任務、寵物、教室、設定）。
             - 由 Flask 提供 `templates/`、`static/web/`，以 `fetch` 呼叫同一套 Flask API。
-        - 舊 Console／Streamlit 學生備援已移至 `archive/`（非正式入口）。開啟方式見 `docs/啟動說明.md`。
+        - 開啟方式見 `docs/啟動說明.md`。
     - **後端**：Python、Flask
         - Flask 提供 RESTful API，並同時提供學生 HTML 頁面。
         - 負責登入驗證、學生管理、任務指派、錄音資料處理與獎勵計算。
@@ -483,16 +483,16 @@ MVP 完成時需符合：
 | 第四階段：練習錄音上傳 | 已完成（Console + Streamlit／API） |
 | 第五階段：任務進度與獎勵 | 已完成 |
 | 第六階段：Streamlit 老師端整合 | 已完成核心頁面（透過 HTTP 串接 Flask，session cookie 維持登入） |
-| 第六點五階段：學生 HTML 一頁版 | 已完成核心（殼層＋登入／主頁／商店／任務／寵物／琴房／教室／設定；背包尚為 placeholder） |
+| 第六點五階段：學生 HTML 一頁版 | 已完成（殼層＋登入／主頁／商店／背包／任務／寵物／琴房／教室／設定） |
 | 第七階段：測試與展示準備 | 進行中 |
 
-商店與兌換已完成（老師 Streamlit＋學生 HTML 商店頁）。舊 Console／Streamlit 學生備援在 `archive/`。
+商店與兌換已完成（老師 Streamlit＋學生 HTML 商店頁）。第一、二階段原以 Console 版完成，Console 版現已移除，功能由 Flask API 承接。
 
 任務進度計算目前只支援 `PRACTICE_COUNT` 與 `DISTINCT_SONGS`，其餘條件類型尚未實作。
 
 正式前端：老師 Streamlit；學生一頁版 `/student/app`。開啟與部署見 `docs/啟動說明.md`。
 
-網頁端尚未涵蓋：老師任務修改／刪除／啟停、商品修改／刪除／上下架、學生 HTML 背包實作、自動化測試。
+網頁端尚未涵蓋：老師任務修改／刪除／啟停、商品修改／刪除／上下架、自動化測試。
 
 #### 第一階段：完成既有帳號與任務功能
 
@@ -555,8 +555,7 @@ MVP 完成時需符合：
 #### 第六點五階段：學生 HTML 一頁版
 
 - 正式入口殼層 `/student/app`（BGM、橫放、全螢幕）
-- 登入、主頁地圖、商店、任務欄、寵物、琴房上傳、教室、設定（iframe 內頁）
-- 尚未完成：背包頁實作（目前 placeholder）
+- 登入、主頁地圖、商店、背包、任務欄、寵物、琴房上傳、教室、設定（iframe 內頁）
 
 #### 第七階段：測試與展示準備
 
