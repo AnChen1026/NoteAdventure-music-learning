@@ -331,6 +331,23 @@ def test_redeem_physical_item(clients):
     assert clients['teacher_a'].get('/api/purchases/pending').json['data'] == []
 
 
+def test_last_item_sold_out_goes_off_shelf(clients):
+    # 庫存只剩 1 個時，買完應歸零並自動下架
+    clients['teacher_a'].post('/api/shop-items', json={
+        'item_name': '最後一個', 'item_type': 'VIRTUAL', 'price': 1, 'stock': 1, 'description': None
+    })
+    item_id = [row['item_id'] for row in clients['teacher_a'].get('/api/shop-items').json['data']
+               if row['item_name'] == '最後一個'][0]
+    response = clients['student'].post(f'/api/shop-items/{item_id}/purchase')
+    assert response.status_code == 200
+    assert response.json['auto_deactivated'] is True
+
+    row = query_one('SELECT stock, is_active FROM shop_item WHERE item_id = %s', (item_id,))
+    assert (row['stock'], row['is_active']) == (0, 0)
+    again = clients['student'].post(f'/api/shop-items/{item_id}/purchase')
+    assert again.status_code == 404
+
+
 # ---------------- 老師查看 ----------------
 
 def test_teacher_uploads_and_audio(clients):
