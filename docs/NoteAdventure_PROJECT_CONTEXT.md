@@ -201,6 +201,8 @@ DISTINCT_SONGS
 - 老師端：任務修改／刪除／啟停、商品修改／刪除／上下架
 - 其他任務條件判斷（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
 
+備註：正式學生入口為 `/student`（舊網址 `/student/app` 會自動導向主頁）。
+
 ## 9. 核心流程
 
 ```
