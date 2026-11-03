@@ -1,0 +1,49 @@
+# ======================================================
+# NoteAdventure｜本機一鍵啟動：docker compose up -d --build
+# 開啟 http://localhost:5000/student（學生）、/teacher（老師）
+# 帳密可在 .env 覆寫（參考 .env.example）
+# ======================================================
+
+services:
+  db:
+    image: mysql:8.0.40
+    environment:
+      TZ: Asia/Taipei  # 任務期限、上傳時間用台灣時間
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-noteadventure-root}
+      MYSQL_DATABASE: music_rpg_v2
+      MYSQL_USER: ${MYSQL_USER:-noteadventure}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-noteadventure}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - db_data:/var/lib/mysql
+      # 第一次啟動（資料庫是空的）時自動建表
+      - ./backend/sql/music_rpg_schema_v2.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  app:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      TZ: Asia/Taipei
+      NOTEADVENTURE_DB_HOST: db
+      NOTEADVENTURE_DB_PORT: "3306"
+      NOTEADVENTURE_DB_USER: ${MYSQL_USER:-noteadventure}
+      NOTEADVENTURE_DB_PASSWORD: ${MYSQL_PASSWORD:-noteadventure}
+      NOTEADVENTURE_DB_NAME: music_rpg_v2
+      NOTEADVENTURE_SECRET_KEY: ${NOTEADVENTURE_SECRET_KEY:-noteadventure-local-secret}
+    ports:
+      - "${APP_PORT:-5000}:5000"
+    volumes:
+      - uploads:/app/uploads
+      - cache:/app/cache
+
+volumes:
+  db_data:
+  uploads:
+  cache:

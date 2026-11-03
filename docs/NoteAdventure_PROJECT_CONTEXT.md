@@ -15,7 +15,7 @@
 ### 必須使用
 
 - Python 3.12
-- Flask（API + 學生 HTML 頁面）
+- Flask（API + 提供 Vue 打包檔）
 - Vue 3 + Vue Router + Vite（老師、學生前端，打包後由 Flask 提供）
 - Node.js（前端開發與打包）
 - MySQL
@@ -23,6 +23,8 @@
 - bcrypt
 - Git / GitHub
 - Python venv
+- Docker、Docker Compose（只在本機執行，不部署雲端）
+- pytest
 
 ### 未經要求不得改用
 
@@ -30,9 +32,8 @@
 - FastAPI
 - SQLAlchemy
 - SQLite
-- React
-- Vue
-- Node.js
+- React（前端已定為 Vue 3）
+- Node.js 後端（Node 只用於打包前端）
 
 ## 3. 專案結構
 
@@ -54,10 +55,13 @@ NoteAdventure/
 ├── material/              # 學生端正式美術素材
 │
 ├── uploads/
+├── tests/                 # pytest（使用 <資料庫>_test，不碰正式資料）
+├── Dockerfile
+├── docker-compose.yml
 │
 ├── docs/
 │   ├── README.md                          # 總覽與文件索引
-│   ├── 啟動說明.md                        # 本機／雲端開啟
+│   ├── 啟動說明.md                        # Docker／本機開啟、測試
 │   ├── NoteAdventure_MVP.md
 │   ├── NoteAdventure_PROJECT_CONTEXT.md
 │   └── DATABASE_SCHEMA.md

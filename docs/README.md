@@ -36,10 +36,12 @@ NoteAdventure 是一套給一對一音樂老師使用的學生練習管理系統
 ## 技術堆疊
 
 - Python 3.12
-- Flask（API + 學生 HTML）
+- Flask（API + 提供 Vue 打包檔）
 - Vue 3 + Vue Router + Vite（老師、學生前端）
 - Node.js（只用於前端開發與打包）
 - MySQL、PyMySQL、bcrypt
+- Docker、Docker Compose（本機一鍵啟動）
+- pytest（自動化測試）
 - Git／GitHub、venv
 
 ## 專案結構（精簡）
@@ -58,6 +60,8 @@ NoteAdventure/
 ├── frontend/              # Vue 3 前端（/student、/teacher）
 ├── material/              # 學生正式素材
 ├── tests/                 # pytest 自動化測試（見啟動說明）
+├── Dockerfile             # 打包 Vue + Flask 映像檔
+├── docker-compose.yml     # 本機啟動 MySQL + Flask
 └── docs/                  # 本目錄文件
 ```
 
@@ -65,7 +69,7 @@ NoteAdventure/
 
 | 文件 | 說明 |
 |------|------|
-| [啟動說明](./啟動說明.md) | 本機開啟＋雲端 Flask 開啟 |
+| [啟動說明](./啟動說明.md) | Docker 一鍵啟動＋本機開發＋測試 |
 | [MVP](./NoteAdventure_MVP.md) | 最小可行性產品定義 |
 | [專案上下文](./NoteAdventure_PROJECT_CONTEXT.md) | 給開發／AI 的專案規則與現況 |
 | [資料庫 Schema](./DATABASE_SCHEMA.md) | 資料表說明（以 SQL 為準） |
@@ -94,7 +98,6 @@ NoteAdventure/
 
 - 老師網頁端：任務修改／刪除／啟停、商品進階管理
 - 部分任務條件類型
-- 音檔雲端持久化
 
 ## 專題定位
 
