@@ -20,7 +20,7 @@ FRONTEND_ROUTES = [
     '/', '/student', '/student/app', '/student/login', '/student/home', '/student/practice',
     '/student/shop', '/student/quests', '/student/pet', '/student/class',
     '/student/backpack', '/student/settings',
-    '/teacher', '/teacher/login', '/teacher/dashboard', '/teacher/students', '/teacher/quests/assign',
+    '/teacher', '/teacher/login', '/teacher/dashboard', '/teacher/students', '/teacher/quests/assign', '/teacher/quests/1/edit',
     '/teacher/uploads', '/teacher/redeem',
 ]
 

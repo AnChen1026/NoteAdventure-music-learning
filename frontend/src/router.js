@@ -41,6 +41,7 @@ const routes = [
       { path: 'quests', component: () => import('./views/teacher/QuestsPage.vue'), meta: { title: '任務清單' } },
       { path: 'quests/new', component: () => import('./views/teacher/CreateQuestPage.vue'), meta: { title: '新增任務' } },
       { path: 'quests/assign', component: () => import('./views/teacher/AssignQuestPage.vue'), meta: { title: '指派任務' } },
+      { path: 'quests/:id/edit', component: () => import('./views/teacher/CreateQuestPage.vue'), meta: { title: '修改任務' } },
       { path: 'uploads', component: () => import('./views/teacher/UploadsPage.vue'), meta: { title: '上傳紀錄' } },
       { path: 'shop', component: () => import('./views/teacher/ShopItemsPage.vue'), meta: { title: '商品清單' } },
       { path: 'shop/new', component: () => import('./views/teacher/CreateShopItemPage.vue'), meta: { title: '新增商品' } },

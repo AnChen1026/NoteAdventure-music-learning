@@ -8,8 +8,9 @@ db = SqlUtils()
 # ======================================================
 def teacher_show_quest(teacher):
     sql = """
-    SELECT quest_id 任務編號,quest_name 任務名稱, quest_type 任務類型, condition_type 任務條件類型, condition_value 任務條件數值, reward_xp 獎勵經驗, reward_coin 獎勵金幣, is_repeatable 是否為重複任務, is_active 任務是否啟用
-    FROM quest_list
+    SELECT quest_id 任務編號,quest_name 任務名稱, quest_type 任務類型, condition_type 任務條件類型, condition_value 任務條件數值, reward_xp 獎勵經驗, reward_coin 獎勵金幣, is_repeatable 是否為重複任務, is_active 任務是否啟用,
+           (SELECT COUNT(*) FROM student_quest sq WHERE sq.quest_id = q.quest_id) 指派次數
+    FROM quest_list q
     WHERE teacher_id = %s;
     """
     result = db.query_all(sql, (teacher['teacher_id'],))
@@ -214,3 +215,100 @@ def assign_quest(teacher, quest_id, student_id):
             'expires_at': expires_at
         }
     return '任務指派失敗'
+
+
+# ======================================================
+# 查詢老師自己的任務（含指派次數）；查無回傳 None
+# ======================================================
+def get_teacher_quest(teacher, quest_id):
+    return db.query_one(
+        """
+        SELECT q.quest_id, q.quest_type, q.condition_type,
+               (SELECT COUNT(*) FROM student_quest sq WHERE sq.quest_id = q.quest_id) AS assigned_count
+        FROM quest_list q
+        WHERE q.quest_id = %s
+        AND q.teacher_id = %s;
+        """,
+        (quest_id, teacher['teacher_id'])
+    )
+
+
+# ======================================================
+# 老師修改任務
+# 已指派過的任務不可改任務類型與條件類型（避免期限與進度計算跟歷史不一致）
+# ======================================================
+def update_quest(teacher, quest_id, quest_name, quest_type, condition_type, condition_value,
+                 reward_xp, reward_coin, is_repeatable):
+    quest = get_teacher_quest(teacher, quest_id)
+    if not quest:
+        return '查無此任務'
+    if quest['assigned_count'] > 0 and (
+            quest['quest_type'] != quest_type or quest['condition_type'] != condition_type):
+        return '任務已指派過，不可修改任務類型或條件類型'
+
+    rowcount = db.execute(
+        """
+        UPDATE quest_list
+        SET quest_name = %s,
+            quest_type = %s,
+            condition_type = %s,
+            condition_value = %s,
+            reward_xp = %s,
+            reward_coin = %s,
+            is_repeatable = %s
+        WHERE quest_id = %s
+        AND teacher_id = %s;
+        """,
+        (quest_name, quest_type, condition_type, condition_value,
+         reward_xp, reward_coin, bool(is_repeatable), quest_id, teacher['teacher_id'])
+    )
+    # 內容沒變時 rowcount 為 0，也算成功；-1 才是執行失敗
+    if rowcount < 0:
+        return '任務修改失敗'
+    return '任務修改成功'
+
+
+# ======================================================
+# 老師啟用／停用任務
+# 停用後不可再指派；已指派的任務照常進行
+# ======================================================
+def set_quest_active(teacher, quest_id, is_active):
+    if not get_teacher_quest(teacher, quest_id):
+        return '查無此任務'
+
+    rowcount = db.execute(
+        """
+        UPDATE quest_list
+        SET is_active = %s
+        WHERE quest_id = %s
+        AND teacher_id = %s;
+        """,
+        (bool(is_active), quest_id, teacher['teacher_id'])
+    )
+    if rowcount < 0:
+        return '任務狀態更新失敗'
+    return '任務已啟用' if is_active else '任務已停用'
+
+
+# ======================================================
+# 老師刪除任務
+# 只能刪除從未指派過的任務；有指派紀錄請改用停用，保留任務歷史
+# ======================================================
+def delete_quest(teacher, quest_id):
+    quest = get_teacher_quest(teacher, quest_id)
+    if not quest:
+        return '查無此任務'
+    if quest['assigned_count'] > 0:
+        return '任務已有指派紀錄，無法刪除，請改用停用'
+
+    rowcount = db.execute(
+        """
+        DELETE FROM quest_list
+        WHERE quest_id = %s
+        AND teacher_id = %s;
+        """,
+        (quest_id, teacher['teacher_id'])
+    )
+    if rowcount > 0:
+        return '任務已刪除'
+    return '任務刪除失敗'

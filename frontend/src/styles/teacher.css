@@ -189,6 +189,16 @@ html.na-teacher *::after {
   color: #ffffff;
 }
 
+/* 一列並排的按鈕（表格操作欄、表單送出／取消） */
+.t-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+
+a.t-btn {
+  text-decoration: none;
+}
+
 /* ---------- 提示 ---------- */
 .t-notice,
 .t-error,

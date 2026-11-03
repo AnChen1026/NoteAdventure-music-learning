@@ -193,6 +193,59 @@ def test_assign_quests(clients):
     assert other_teacher.status_code == 404
 
 
+
+def test_manage_unassigned_quest(clients):
+    client = clients['teacher_a']
+    quest = {
+        'quest_name': '暫時任務', 'quest_type': 'DAILY', 'condition_type': 'PRACTICE_COUNT',
+        'condition_value': 1, 'reward_xp': 5, 'reward_coin': 1, 'is_repeatable': True
+    }
+    assert client.post('/api/quests', json=quest).status_code == 201
+    quest_id = next(row['任務編號'] for row in client.get('/api/quests').json['data'] if row['任務名稱'] == '暫時任務')
+
+    # 未指派過：可修改任何欄位（包含類型）
+    edited = dict(quest, quest_name='暫時任務改', quest_type='WEEKLY', condition_type='DISTINCT_SONGS', reward_xp=8)
+    assert client.put(f'/api/quests/{quest_id}', json=edited).status_code == 200
+    row = next(row for row in client.get('/api/quests').json['data'] if row['任務編號'] == quest_id)
+    assert (row['任務名稱'], row['任務類型'], row['任務條件類型'], row['獎勵經驗'], row['指派次數']) == \
+        ('暫時任務改', 'WEEKLY', 'DISTINCT_SONGS', 8, 0)
+    assert client.put(f'/api/quests/{quest_id}', json=dict(edited, quest_name='')).status_code == 400
+
+    # 別的老師不能改、不能停用、不能刪除
+    other = clients['teacher_b']
+    assert other.put(f'/api/quests/{quest_id}', json=edited).status_code == 404
+    assert other.patch(f'/api/quests/{quest_id}/active', json={'is_active': False}).status_code == 404
+    assert other.delete(f'/api/quests/{quest_id}').status_code == 404
+
+    # 停用後不可指派，啟用後可以
+    assert client.patch(f'/api/quests/{quest_id}/active', json={'is_active': 'no'}).status_code == 400
+    assert client.patch(f'/api/quests/{quest_id}/active', json={'is_active': False}).status_code == 200
+    assert client.post(f'/api/quests/{quest_id}/assign', json={'student_id': state['student_id']}).status_code == 404
+    assert client.patch(f'/api/quests/{quest_id}/active', json={'is_active': True}).status_code == 200
+
+    # 從未指派過才能刪除
+    assert client.delete(f'/api/quests/{quest_id}').status_code == 200
+    assert client.delete(f'/api/quests/{quest_id}').status_code == 404
+    assert query_one('SELECT COUNT(*) AS n FROM quest_list WHERE quest_id = %s', (quest_id,))['n'] == 0
+
+
+def test_manage_assigned_quest(clients):
+    client = clients['teacher_a']
+    quest_id = state['quest_ids']['練習兩次']
+    row = next(row for row in client.get('/api/quests').json['data'] if row['任務編號'] == quest_id)
+    assert row['指派次數'] == 1
+    current = {
+        'quest_name': row['任務名稱'], 'quest_type': row['任務類型'], 'condition_type': row['任務條件類型'],
+        'condition_value': row['任務條件數值'], 'reward_xp': row['獎勵經驗'], 'reward_coin': row['獎勵金幣'],
+        'is_repeatable': bool(row['是否為重複任務'])
+    }
+
+    # 已指派過：不可改類型、不可刪除；同樣內容存檔仍成功
+    assert client.put(f'/api/quests/{quest_id}', json=dict(current, quest_type='WEEKLY')).status_code == 409
+    assert client.put(f'/api/quests/{quest_id}', json=dict(current, condition_type='DISTINCT_SONGS')).status_code == 409
+    assert client.put(f'/api/quests/{quest_id}', json=current).status_code == 200
+    assert client.delete(f'/api/quests/{quest_id}').status_code == 409
+
 def test_student_sees_quests(clients):
     response = clients['student'].get(f"/api/students/{state['student_id']}/quests")
     assert response.status_code == 200
@@ -382,6 +435,9 @@ def test_teacher_dashboard(clients):
 @pytest.mark.parametrize('method,path', [
     ('get', '/api/students'),
     ('get', '/api/quests'),
+    ('put', '/api/quests/1'),
+    ('patch', '/api/quests/1/active'),
+    ('delete', '/api/quests/1'),
     ('get', '/api/shop-items'),
     ('get', '/api/purchases/pending'),
     ('get', '/api/practice-uploads'),
