@@ -54,6 +54,7 @@ NoteAdventure/
 ├── api/                   # HTTP／session
 ├── services/              # 商業邏輯
 ├── sql/                   # Schema
+├── tests/                 # pytest 自動化測試（見啟動說明）
 ├── utils/                 # 密碼、帳號產生工具
 └── docs/                  # 本目錄文件
 ```
@@ -91,7 +92,7 @@ NoteAdventure/
 
 - 老師網頁端：任務修改／刪除／啟停、商品進階管理
 - 部分任務條件類型
-- 自動化測試、音檔雲端持久化
+- 音檔雲端持久化
 
 ## 專題定位
 
