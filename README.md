@@ -4,12 +4,12 @@
 
 給一對一音樂老師的練習管理系統：老師指派練習任務，國小學生上傳練習錄音，完成任務就能獲得 XP 與金幣、養大自己的寵物。
 
-**線上展示**：<!-- TODO: 部署後填入 Railway 網址 --> `https://（部署後填入）`
+**線上展示**：<https://noteventure-production-5b0d.up.railway.app>
 
 | 角色 | 入口 | 示範帳號 | 密碼 |
 |------|------|----------|------|
-| 學生（建議橫放手機或用電腦） | `/student` | `demo_student` | `demo1234` |
-| 老師 | `/teacher` | `demo@noteadventure.app` | `demo1234` |
+| 學生（建議橫放手機或用電腦） | [/student](https://noteventure-production-5b0d.up.railway.app/student) | `demo_student` | `demo1234` |
+| 老師 | [/teacher](https://noteventure-production-5b0d.up.railway.app/teacher) | `demo@noteadventure.app` | `demo1234` |
 
 > 示範帳號不能修改密碼；你也可以在老師端自行註冊新帳號，建立自己的學生與任務。
 
