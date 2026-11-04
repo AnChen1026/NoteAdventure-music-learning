@@ -37,6 +37,8 @@ services:
       NOTEADVENTURE_DB_PASSWORD: ${MYSQL_PASSWORD:-noteadventure}
       NOTEADVENTURE_DB_NAME: music_rpg_v2
       NOTEADVENTURE_SECRET_KEY: ${NOTEADVENTURE_SECRET_KEY:-noteadventure-local-secret}
+      # 建立示範帳號（老師 demo@noteadventure.app／學生 demo_student，密碼 demo1234）；設 0 可關閉
+      NOTEADVENTURE_DEMO: ${NOTEADVENTURE_DEMO:-1}
     ports:
       - "${APP_PORT:-5000}:5000"
     volumes:
