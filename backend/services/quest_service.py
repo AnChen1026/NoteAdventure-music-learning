@@ -177,7 +177,8 @@ def assign_quest(teacher, quest_id, student_id):
     if not student:
         return '查無此學生'
 
-    assigned_at = datetime.now()
+    # 去掉微秒：MySQL DATETIME 會四捨五入到秒，可能把指派時間進位到下一秒，漏算同一秒內的上傳
+    assigned_at = datetime.now().replace(microsecond=0)
     expires_at, period_key = quest_period(quest['quest_type'], assigned_at)
 
     exist = db.query_one(
