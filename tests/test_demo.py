@@ -49,3 +49,11 @@ def test_seed_demo_and_lock_password(demo_on, make_client):
     response = teacher_client.post('/api/students/reset-password',
                                    json={'username': DEMO_STUDENT_USERNAME})
     assert response.status_code == 403
+
+
+def test_db_session_uses_app_timezone(app):
+    # 雲端 MySQL 預設 UTC；連線時改成與 Flask 相同時區，NOW() 才會等於 datetime.now()
+    from datetime import datetime
+    from db import SqlUtils
+    row = SqlUtils().query_one('SELECT NOW() AS db_now')
+    assert abs((row['db_now'] - datetime.now()).total_seconds()) < 60

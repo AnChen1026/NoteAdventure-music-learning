@@ -70,6 +70,10 @@ def seed_demo():
                    (hash_password(DEMO_TEACHER_PASSWORD), teacher['teacher_id']))
         db.execute('UPDATE student SET password_hash = %s WHERE username = %s',
                    (hash_password(DEMO_STUDENT_PASSWORD), DEMO_STUDENT_USERNAME))
+        # 重算示範學生的任務進度，補發已達標的獎勵
+        student = db.query_one('SELECT * FROM student WHERE username = %s', (DEMO_STUDENT_USERNAME,))
+        if student:
+            give_quest_rewards(update_quest_progress(student))
         return '示範資料已存在，已重設密碼'
 
     db.execute('INSERT INTO teacher (teacher_name, email, password_hash) VALUES (%s, %s, %s)',

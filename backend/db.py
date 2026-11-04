@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import pymysql
 from configparser import ConfigParser
@@ -27,7 +28,11 @@ class SqlUtils:
     # ======================================================
     def get_connection(self):
         port_text = self._db_setting('NOTEADVENTURE_DB_PORT', 'port', '3306')
+        # MySQL 的 NOW()／CURRENT_TIMESTAMP 與 Python datetime.now() 使用同一個時區，
+        # 避免雲端資料庫預設 UTC 時，任務指派時間與上傳時間差 8 小時
+        offset = datetime.now().astimezone().strftime('%z')
         return pymysql.connect(
+            init_command=f"SET time_zone = '{offset[:3]}:{offset[3:]}'",
             host=self._db_setting('NOTEADVENTURE_DB_HOST', 'host', 'localhost'),
             user=self._db_setting('NOTEADVENTURE_DB_USER', 'user', 'root'),
             password=self._db_setting('NOTEADVENTURE_DB_PASSWORD', 'password', ''),
