@@ -191,6 +191,10 @@ DISTINCT_SONGS
 - 老師處理實體商品兌換
 - Flask Application Factory 與核心 API（health、登入／登出、改密碼、學生、任務建立／指派、練習上傳、商店、寵物）
 - 前端改為 Vue 3：老師後台（學生／任務／上傳紀錄／商品／兌換）與學生一頁版（登入、主頁地圖、商店、背包、任務欄、寵物、琴房、教室、設定）
+- 同時發獎的競態條件（完成標記必須影響一列，否則整批 rollback）與併發測試
+- 資料庫連線時區與 Flask 一致
+- pytest 自動化測試、GitHub Actions
+- Docker 本機啟動、Railway 線上展示與示範帳號
 
 ### 尚未完成
 
