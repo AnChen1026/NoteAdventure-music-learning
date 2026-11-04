@@ -9,6 +9,7 @@ api/students.py｜老師管理學生帳號
 
 from flask import Blueprint, request, jsonify
 from api.guards import get_login_teacher, json_safe
+from demo import is_demo_student
 from services.student_service import (
     show_student,
     create_student,
@@ -77,6 +78,8 @@ def api_reset_student_password():
     # 確認學生屬於這位老師
     if not teacher_has_student(teacher, username):
         return jsonify({'message': '找不到該學生帳號'}), 404
+    if is_demo_student({'username': username}):
+        return jsonify({'message': '示範帳號不能重設密碼'}), 403
 
     result = reset_student_password(username)
     if result.startswith('密碼修改成功'):

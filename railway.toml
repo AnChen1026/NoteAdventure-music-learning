@@ -1,0 +1,9 @@
+# NoteAdventure｜Railway 部署設定（步驟見 docs/啟動說明.md）
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/api/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"

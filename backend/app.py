@@ -55,6 +55,11 @@ def create_app():
     app.config['SESSION_COOKIE_SECURE'] = cookie_secure
     app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'  # 降低 CSRF 風險的常見設定
     app.config['JSON_AS_ASCII'] = False  # API 回傳中文時不要變成 \uXXXX
+    app.config['MAX_CONTENT_LENGTH'] = 20 * 1024 * 1024  # 上傳上限 20MB
+
+    @app.errorhandler(413)
+    def file_too_large(error):
+        return jsonify({'message': '檔案太大，請上傳 20MB 以內的錄音'}), 413
 
     # ---------- 註冊 API（JSON）----------
     # 註冊後，例如 auth_bp 裡的 @auth_bp.post('/api/teachers/login') 就會生效

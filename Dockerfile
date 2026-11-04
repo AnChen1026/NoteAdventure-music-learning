@@ -31,4 +31,6 @@ RUN useradd --create-home appuser \
 USER appuser
 
 EXPOSE 5000
-CMD ["gunicorn", "--chdir", "backend", "-w", "2", "-b", "0.0.0.0:5000", "app:create_app()"]
+# 先確認資料表（與示範資料），再啟動 Flask；雲端平台會用 PORT 指定連接埠
+CMD python backend/init_db.py && \
+    exec gunicorn --chdir backend -w 2 -b 0.0.0.0:${PORT:-5000} "app:create_app()"

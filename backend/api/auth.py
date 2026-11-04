@@ -16,6 +16,7 @@ from services.teacher_service import (
 )
 from services.student_service import login_student, change_student_password
 from api.guards import get_login_teacher, get_login_student
+from demo import is_demo_teacher, is_demo_student
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -169,6 +170,8 @@ def api_teacher_change_password():
     teacher, error = get_login_teacher()
     if error:
         return error
+    if is_demo_teacher(teacher):
+        return jsonify({'message': '示範帳號不能修改密碼'}), 403
 
     data = request.get_json(silent=True) or {}
     old_password = data.get('old_password', '')
@@ -192,6 +195,8 @@ def api_student_change_password():
     student, error = get_login_student()
     if error:
         return error
+    if is_demo_student(student):
+        return jsonify({'message': '示範帳號不能修改密碼'}), 403
 
     data = request.get_json(silent=True) or {}
     old_password = data.get('old_password', '')
