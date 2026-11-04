@@ -1,5 +1,5 @@
 from db import SqlUtils
-from services.pet_service import update_pet_stage
+from services.pet_service import pet_stage_sql
 
 db = SqlUtils()
 
@@ -42,8 +42,10 @@ def give_quest_reward(student_quest_id):
         total_coin = total_coin + %s
     WHERE student_id = %s;
     """
+    # 標記完成必須真的更新到一列：若另一個請求已先發獎（completed 已是 TRUE），
+    # 這句影響 0 列，整批 rollback，避免同時上傳時重複發獎
     sql_list = [
-        (complete_sql, (student_quest_id,)),
+        (complete_sql, (student_quest_id,), True),
         (student_sql, (quest['reward_xp'], quest['reward_coin'], quest['student_id']))
     ]
 
@@ -70,10 +72,11 @@ def give_quest_reward(student_quest_id):
         """
         sql_list.append((coin_sql, (quest['student_id'], source_type, quest['reward_coin'])))
 
-    # 四張表寫在同一個 transaction，失敗全部回復
+    # 經驗值變動後更新寵物階段
+    sql_list.append(pet_stage_sql(quest['student_id']))
+
+    # 任務、學生、異動紀錄、寵物寫在同一個 transaction，失敗全部回復
     if db.execute_transaction(sql_list):
-        # 經驗值變動後更新寵物階段
-        update_pet_stage(quest['student_id'])
         return {
             'quest_name': quest['quest_name'],
             'reward_xp': quest['reward_xp'],

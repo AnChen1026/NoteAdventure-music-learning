@@ -3,33 +3,32 @@ from db import SqlUtils
 db = SqlUtils()
 
 # ======================================================
+# 依累積經驗值更新寵物階段的 SQL，沒有寵物就建立
+# 回傳 (sql, params)，可單獨執行，也可放進發獎的 transaction
+# ======================================================
+def pet_stage_sql(student_id):
+    # 取門檻小於等於目前經驗值的最後一個階段
+    # 一位學生只有一隻寵物，pet.student_id 是 UNIQUE：沒有就新增，已有就更新階段
+    sql = """
+    INSERT INTO pet (student_id, stage_id)
+    SELECT * FROM (
+        SELECT s.student_id, ps.stage_id
+        FROM student s
+        JOIN pet_stage ps ON ps.xp_threshold <= s.total_xp
+        WHERE s.student_id = %s
+        ORDER BY ps.stage_order DESC
+        LIMIT 1
+    ) AS new_stage
+    ON DUPLICATE KEY UPDATE stage_id = new_stage.stage_id
+    """
+    return sql, (student_id,)
+
+
+# ======================================================
 # 依累積經驗值更新寵物階段，沒有寵物就建立
 # ======================================================
 def update_pet_stage(student_id):
-    # 取門檻小於等於目前經驗值的最後一個階段
-    sql = """
-    SELECT ps.stage_id
-    FROM student s
-    JOIN pet_stage ps ON ps.xp_threshold <= s.total_xp
-    WHERE s.student_id = %s
-    ORDER BY ps.stage_order DESC
-    LIMIT 1;
-    """
-    stage = db.query_one(sql, (student_id,))
-    if not stage:
-        return '無寵物階段資料'
-
-    # 一位學生只有一隻寵物，pet.student_id 是 UNIQUE
-    # 沒有寵物就新增，已有寵物就更新階段
-    sql = """
-    INSERT INTO pet (
-    student_id,
-    stage_id
-    )
-    VALUES (%s, %s)
-    ON DUPLICATE KEY UPDATE stage_id = %s
-    """
-    rowcount = db.execute(sql, (student_id, stage['stage_id'], stage['stage_id']))
+    rowcount = db.execute(*pet_stage_sql(student_id))
     if rowcount > 0:
         return '寵物階段更新成功'
     return '寵物階段未變動'

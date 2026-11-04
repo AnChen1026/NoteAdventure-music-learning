@@ -93,14 +93,19 @@ class SqlUtils:
     # ======================================================
     # 多句 SQL 在同一個 transaction，全部成功才 commit
     # sql_list 格式：[(sql, params), (sql, params)]
+    # 第三個值為 True 時，該句必須至少影響一列，否則整批 rollback
+    # 例：[(sql, params, True), (sql, params)]
     # ======================================================
     def execute_transaction(self, sql_list):
         conn = self.get_connection()
 
         try:
             with conn.cursor() as cursor:
-                for sql, params in sql_list:
-                    cursor.execute(sql, params)
+                for sql, params, *must_affect in sql_list:
+                    rowcount = cursor.execute(sql, params)
+                    if must_affect and must_affect[0] and rowcount == 0:
+                        conn.rollback()
+                        return False
             conn.commit()
             return True
 
