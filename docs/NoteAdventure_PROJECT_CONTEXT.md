@@ -23,7 +23,7 @@
 - bcrypt
 - Git / GitHub
 - Python venv
-- Docker、Docker Compose（只在本機執行，不部署雲端）
+- Docker、Docker Compose（本機）；Railway（線上展示）
 - pytest
 
 ### 未經要求不得改用
@@ -84,7 +84,7 @@ NoteAdventure/
 前端入口：
 - 後端：一定要啟動 Flask（預設 `:5000`）。
 - 老師：瀏覽器開啟 `http://127.0.0.1:5000/teacher`。
-- 學生：瀏覽器開啟 `http://127.0.0.1:5000/student/app`。
+- 學生：瀏覽器開啟 `http://127.0.0.1:5000/student`。
 
 ## 5. 資料庫
 
@@ -194,11 +194,8 @@ DISTINCT_SONGS
 
 ### 尚未完成
 
-- 老師端：任務修改／刪除／啟停、商品修改／刪除／上下架（舊 Console 版有，已隨 Console 移除，需重新以 API 實作）
+- 老師端：任務修改／刪除／啟停、商品修改／刪除／上下架
 - 其他任務條件判斷（`PRACTICE_DAYS`、`CONSECUTIVE_DAYS`、`TOTAL_UPLOADS`、`RETURN_AFTER_GAP`）
-- 自動化測試
-
-備註：正式學生入口為 `/student/app`。
 
 ## 9. 核心流程
 
@@ -207,7 +204,7 @@ DISTINCT_SONGS
 → 建立學生
 → 建立任務
 → 指派任務
-→ 學生登入（HTML /student/app）
+→ 學生登入（/student）
 → 主頁地圖導覽
 → 查看任務
 → 上傳練習
@@ -261,7 +258,7 @@ DISTINCT_SONGS
 
 - 依 `NoteAdventure_MVP.md` 期中展示流程，從老師後台跑到學生一頁版購買，再回老師查看上傳紀錄
 - 打包前端（`cd frontend && npm run build`）並啟動 Flask（`flask --app backend/app.py run --port 5000`），或直接 `docker compose up`
-- 學生端使用 `http://127.0.0.1:5000/student/app`
+- 學生端使用 `http://127.0.0.1:5000/student`
 - 每個步驟都有中文提示，查無資料時不報錯
 - 準備展示用的測試老師、學生、任務、商品與音檔
 - 記錄流程中發現的問題與待修項目

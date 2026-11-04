@@ -92,7 +92,8 @@ NoteAdventure/
 - MySQL Schema、Flask API、`services/` 商業邏輯
 - 老師 Vue 後台 `/teacher`：註冊／登入、學生、任務、上傳試聽、商店／兌換
 - 學生 Vue 一頁版 `/student`：登入、主頁、琴房、任務、寵物、商店、背包、教室、設定
-- 已移除舊 Console 版與 `archive/` 備援，repo 只保留正式版本
+- pytest 自動化測試與 GitHub Actions
+- Docker 本機啟動、Railway 線上展示（示範帳號）
 
 尚未完成（舉例）：
 

@@ -54,7 +54,7 @@
     - `feature/quest-assignment`
     - `feature/practice-upload`
     - `feature/reward-system`
-    - `feature/streamlit-ui`
+    - `feature/student-spa`
 
 ---
 
@@ -158,7 +158,7 @@ sequenceDiagram
     participant Teacher as 老師
     participant Student as 學生
     participant TeacherUI as Vue老師端
-    participant StudentUI as 學生HTML前端
+    participant StudentUI as Vue學生端
     participant API as Flask API
     participant Service as Python Service
     participant DB as MySQL
@@ -462,7 +462,7 @@ MVP 完成時需符合：
 11. 雲端音檔儲存
 12. 自動刪除錄音
 13. 爬蟲與演出資訊輪播
-14. 正式 Linux／雲端部署（本專案只在本機執行；本機已可用 Docker Compose 一鍵啟動）
+14. 多台伺服器的正式部署（目前以 Railway 單一服務提供線上展示）
 15. 手機 App
 16. 完整動畫與美術設計
 17. 多位老師共同管理同一位學生
@@ -470,101 +470,22 @@ MVP 完成時需符合：
 
 ---
 
-### 7. 第一版開發順序
+### 7. 目前進度
 
-#### 目前進度
-
-| 階段 | 狀態 |
+| 項目 | 狀態 |
 | --- | --- |
-| 第一階段：帳號與任務功能 | 已完成（Console） |
-| 第二階段：任務指派 | 已完成（Console） |
-| 第三階段：Flask API | 已完成核心 API（登入、學生、任務建立／指派、練習上傳、商店、寵物、改密碼） |
-| 第四階段：練習錄音上傳 | 已完成（Console + Streamlit／API） |
-| 第五階段：任務進度與獎勵 | 已完成 |
-| 第六階段：Streamlit 老師端整合 | 已完成核心頁面（透過 HTTP 串接 Flask，session cookie 維持登入） |
-| 第六點五階段：學生 HTML 一頁版 | 已完成（殼層＋登入／主頁／商店／背包／任務／寵物／琴房／教室／設定） |
-| 第七階段：測試與展示準備 | 進行中 |
+| 帳號：老師註冊／登入、建立學生、重設密碼、學生首次登入改密碼 | 已完成 |
+| 任務：建立、指派、期限與 `period_key`、防止同期重複指派 | 已完成 |
+| 練習錄音上傳、老師查看與試聽 | 已完成 |
+| 任務進度與獎勵（transaction、防止重複與並發發獎） | 已完成 |
+| 寵物成長、商店購買、實體商品兌換 | 已完成 |
+| 前端：Vue 3 老師後台 `/teacher`、學生一頁版 `/student` | 已完成 |
+| 自動化測試（pytest）與 GitHub Actions | 已完成 |
+| Docker 本機啟動、Railway 線上展示與示範帳號 | 已完成 |
+| 老師端任務／商品的修改、刪除、停用 | 未完成 |
+| 其他任務條件（練習天數、連續天數、上傳總數、回歸上傳） | 未完成 |
 
-商店與兌換已完成（老師 Streamlit＋學生 HTML 商店頁）。第一、二階段原以 Console 版完成，Console 版現已移除，功能由 Flask API 承接。
-
-任務進度計算目前只支援 `PRACTICE_COUNT` 與 `DISTINCT_SONGS`，其餘條件類型尚未實作。
-
-正式前端：Vue 3（老師 `/teacher`；學生 `/student`）。開啟方式（Docker／本機）見 `docs/啟動說明.md`。
-
-網頁端尚未涵蓋：老師任務修改／刪除／啟停、商品修改／刪除／上下架、自動化測試。
-
-#### 第一階段：完成既有帳號與任務功能
-
-- 確認老師註冊與登入可正常運作
-- 確認學生建立與登入流程
-- 完成學生首次登入修改密碼
-- 確認任務 CRUD 與啟用／停用功能
-
-#### 第二階段：任務指派
-
-- 顯示老師建立的任務
-- 顯示老師所屬學生
-- 選擇任務與學生
-- 計算 `assigned_at`
-- 計算 `expires_at`
-- 建立 `period_key`
-- 寫入 `student_quest`
-- 防止相同期間重複指派
-
-#### 第三階段：Flask API
-
-- 建立 Flask 專案入口
-- 建立 Application Factory
-- 建立 Blueprint
-- 建立登入 API
-- 建立學生查詢 API
-- 建立任務查詢與指派 API
-- 統一 JSON 回傳格式
-- 設定 HTTP status code
-
-#### 第四階段：練習錄音上傳
-
-- Streamlit 上傳音檔
-- 輸入曲目名稱
-- 取得或紀錄音檔秒數
-- 儲存本機音檔
-- 建立 `practice_upload`
-- 老師查看學生上傳紀錄
-
-#### 第五階段：任務進度與獎勵
-
-- 計算練習次數
-- 計算不同曲目數
-- 更新 `progress_value`
-- 判斷任務完成
-- 發放 XP 與金幣
-- 建立異動紀錄
-- 防止重複發獎
-- 更新寵物階段
-
-#### 第六階段：Streamlit 老師端整合
-
-- 老師登入頁
-- 老師學生管理頁
-- 老師任務管理頁
-- 老師查看上傳紀錄／商品／兌換
-- 串接 Flask API
-- Streamlit 僅老師管理；學生只用 HTML 一頁版
-
-#### 第六點五階段：學生 HTML 一頁版
-
-- 正式入口殼層 `/student/app`（BGM、橫放、全螢幕）
-- 登入、主頁地圖、商店、背包、任務欄、寵物、琴房上傳、教室、設定（iframe 內頁）
-
-#### 第七階段：測試與展示準備
-
-- 建立測試老師與學生
-- 建立測試任務
-- 準備測試音檔
-- 測試完整核心流程
-- 修正錯誤訊息
-- 建立 Git commit
-- 準備期中 Demo
+開啟方式（Docker／本機／Railway）見 `docs/啟動說明.md`。
 
 ---
 
