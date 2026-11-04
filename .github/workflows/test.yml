@@ -1,0 +1,53 @@
+# ======================================================
+# NoteAdventure｜每次 push／PR 自動打包前端並執行 pytest
+# 使用 MySQL 8.0 服務容器，測試會自建 music_rpg_v2_test 資料庫
+# ======================================================
+name: test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0.40
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          TZ: Asia/Taipei
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot --silent"
+          --health-interval=5s --health-timeout=5s --health-retries=30
+    env:
+      TZ: Asia/Taipei
+      NOTEADVENTURE_DB_HOST: 127.0.0.1
+      NOTEADVENTURE_DB_PORT: "3306"
+      NOTEADVENTURE_DB_USER: root
+      NOTEADVENTURE_DB_PASSWORD: root
+      NOTEADVENTURE_DB_NAME: music_rpg_v2
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: 打包 Vue 前端
+        working-directory: frontend
+        run: |
+          npm ci
+          npm run build
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: 安裝套件
+        run: pip install -r requirements-dev.txt
+      - name: 執行測試
+        run: python -m pytest
